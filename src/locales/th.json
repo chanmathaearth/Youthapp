@@ -1,0 +1,59 @@
+{
+    "login": {
+        "title": "เข้าสู่ระบบ",
+        "username": "ชื่อผู้ใช้",
+        "password": "รหัสผ่าน",
+        "welcome": "ยินดีต้อนรับกลับ! เข้าสู่ระบบเพื่อเข้าถึง",
+        "forgot_password": "ลืมรหัสผ่านหรือไม่?",
+        "continue": "ดำเนินการต่อ"
+    },
+    "topbar": {
+        "title": "YOUTHAPP",
+        "homepage": "หน้าหลัก",
+        "dashboard": "สถิติ",
+        "signout": "ออกจากระบบ"
+    },
+    "home": {
+        "tracking_system": "✨ ระบบติดตามและประเมินผลพัฒนาการเด็ก",
+        "select_classroom": "กรุณาเลือกห้องเรียนที่",
+        "evaluation_prompt": "คุณต้องการประเมิน",
+        "development_potential": "พัฒนาศักยภาพเด็กและเยาวชนด้วยกิจกรรมที่หลากหลายเพื่อการเรียนรู้ที่มีความหมาย"
+    },
+    "programs": {
+        "room": "ห้อง{{room}}",
+        "teacher": "คุณครู ",
+        "age_range": "อายุ: {{range}}",
+        "participants": "จำนวนเด็ก: {{participants}} คน",
+        "evaluate": "ประเมิน"
+    },
+    "age": {
+        "to": "ถึง",
+        "months_only": "{{count}} เดือน",
+        "years_only": "{{count}} ปี",
+        "years_months": "{{y}} ปี {{m}} เดือน"
+    },
+    "evaluation": {
+        "select_name": "กรุณาเลือกรายชื่อที่",
+        "evaluation_prompt": "คุณต้องการประเมิน"
+    },
+    "dashboard": {
+        "title": "ระบบติดตามและประเมินพัฒนาการเด็ก",
+        "subtitle": "Dashboard สำหรับติดตามและประเมินผลการพัฒนาเด็กใน ",
+        "date": "{{date}}",
+        "status.ready": "ระบบพร้อมใช้งาน",
+        "stat.totalChildren": "เด็กทั้งหมด",
+        "stat.averageScore": "คะแนนเฉลี่ย",
+        "stat.evaluated": "ประเมินแล้ว",
+        "unit.person": "คน",
+        "unit.percent": "%",
+        "unit.times": "ครั้ง",
+        "unit.evaluated": "รายการ",
+        "childrenInSystem": "เด็กในระบบ: {{count}} คน",
+        "section.roomStats": "สถิติแยกตามห้อง",
+        "evaluatedCount": "จำนวนประเมิน",
+        "averageScore": "คะแนนเฉลี่ย",
+        "progress": "ความคืบหน้า",
+        "button.evaluate": "ประเมินเด็ก",
+        "button.add": "เพิ่มเด็กใหม่"
+    }
+}

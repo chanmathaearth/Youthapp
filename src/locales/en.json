@@ -1,0 +1,59 @@
+{
+    "login": {
+        "title": "Login",
+        "username": "Username",
+        "password": "Password",
+        "welcome": "Welcome back! Login to access.",
+        "forgot_password": "Did you forget your password?",
+        "continue": "Continue"
+    },
+    "topbar": {
+        "title": "YOUTHAPP",
+        "homepage": "Homepage",
+        "dashboard": "Dashboard",
+        "signout": "Sign out"
+    },
+    "home": {
+        "tracking_system": "✨ Child Development Tracking and Evaluation System",
+        "select_classroom": "Please choose the classroom that ",
+        "evaluation_prompt": "You need to evaluate",
+        "development_potential": "Develop the potential of children and youth with various activities for meaningful learning"
+    },
+    "programs": {
+        "room": "{{room}} Room",
+        "teacher": "teacher ",
+        "age_range": "Age: {{range}}",
+        "participants": "Participants: {{participants}} kids",
+        "evaluate": "Evaluate"
+    },
+    "age": {
+        "to": "to",
+        "months_only": "{{count}} mo",
+        "years_only": "{{count}} yr",
+        "years_months": "{{y}} yr {{m}} mo"
+    },
+    "evaluation": {
+        "select_name": "Please choose a child ",
+        "evaluation_prompt": "to evaluate"
+    },
+    "dashboard": {
+        "title": "Child Development Tracking and Evaluation System",
+        "subtitle": "Dashboard for tracking and evaluating child development in ",
+        "date": "{{date}}",
+        "status.ready": "System Ready",
+        "stat.totalChildren": "Total Children",
+        "stat.averageScore": "Average Score",
+        "stat.evaluated": "Evaluated",
+        "unit.person": "person",
+        "unit.percent": "%",
+        "unit.evaluated": "items",
+        "unit.times": "times",
+        "childrenInSystem": "Children in system: {{count}}",
+        "section.roomStats": "Room-wise Statistics",
+        "evaluatedCount": "Evaluated Count",
+        "averageScore": "Average Score",
+        "progress": "Progress",
+        "button.evaluate": "Evaluate Child",
+        "button.add": "Add New Child"
+    }
+}

@@ -1,0 +1,15 @@
+@font-face {
+  font-family: Poppins;
+  src: url("./assets/fonts/Poppins-Regular.ttf");
+}
+
+@font-face {
+  font-family: Kanit;
+  src: url("./assets/fonts/Kanit-Regular.ttf");
+}
+
+@import "tailwindcss";
+
+@theme{
+  --font-poppins: Poppins, Kanit
+}

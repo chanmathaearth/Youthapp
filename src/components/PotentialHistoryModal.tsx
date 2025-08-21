@@ -6,6 +6,7 @@ interface Evaluation {
     round: number;
     date: string; // ควรเป็น ISO string เช่น '2024-06-15'
     score: number;
+    length: number;
     age: number;
 }
 
@@ -13,14 +14,6 @@ interface Props {
     onClose: () => void;
     evaluations: Evaluation[];
 }
-
-const getColor = (score: number) => {
-    if (score >= 85) return { label: "ดีมาก", color: "#3b82f6", bg: "#dbeafe" };
-    if (score >= 75) return { label: "ดี", color: "#06b6d4", bg: "#cffafe" };
-    if (score >= 60)
-        return { label: "ปานกลาง", color: "#f97316", bg: "#ffedd5" };
-    return { label: "ควรปรับปรุง", color: "#dc2626", bg: "#fee2e2" };
-};
 
 const DevelopmentLogModal: React.FC<Props> = ({ onClose, evaluations }) => {
     return (
@@ -73,7 +66,6 @@ const DevelopmentLogModal: React.FC<Props> = ({ onClose, evaluations }) => {
                 </IconButton>
 
                 {evaluations.map((item, index) => {
-                    const { label, color, bg } = getColor(item.score);
                     return (
                         <Box
                             key={index}
@@ -115,26 +107,49 @@ const DevelopmentLogModal: React.FC<Props> = ({ onClose, evaluations }) => {
                                     อายุ {item.age} เดือน
                                 </Typography>
                             </Box>
-                            <Box display="flex" alignItems="center" gap={1}>
-                                <Typography
-                                    fontWeight="bold"
-                                    color={color}
-                                    sx={{
-                                        fontFamily: "Kanit, Poppins",
-                                    }}
-                                >
-                                    {item.score}%
-                                </Typography>
-                                <Chip
-                                    label={label}
-                                    sx={{
-                                        bgcolor: bg,
-                                        color: color,
-                                        fontWeight: "bold",
-                                        fontSize: "0.8rem",
-                                        fontFamily: "Kanit, Poppins",
-                                    }}
-                                />
+                            <Box className="flex-col" display="flex" alignItems="center" gap={1}>
+                                {(() => {
+                                    const passedItems = item.score; 
+                                    const totalItems = item.length; 
+
+                                    let label = "ไม่ผ่าน"; 
+                                    let bg = "#ef4444"; 
+                                    let color = "white";
+
+                                    // ถ้าทำได้ครบหรือมากกว่าครึ่ง
+                                    if (passedItems === totalItems) {
+                                        label = "ผ่าน";
+                                        bg = "#22c55e"; 
+                                        color = "white";
+                                    }
+
+                                    return (
+                                        <>
+                                            <Typography
+                                                fontSize={14}
+                                                color={bg}
+                                                sx={{
+                                                    fontFamily:
+                                                        "Kanit, Poppins",
+                                                }}
+                                            >
+                                                ทำได้ {passedItems}/{totalItems}{" "}
+                                                ข้อ
+                                            </Typography>
+                                            <Chip
+                                                label={label}
+                                                sx={{
+                                                    bgcolor: bg,
+                                                    color: color,
+                                                    fontWeight: "bold",
+                                                    fontSize: "0.8rem",
+                                                    fontFamily:
+                                                        "Kanit, Poppins",
+                                                }}
+                                            />
+                                        </>
+                                    );
+                                })()}
                             </Box>
                         </Box>
                     );

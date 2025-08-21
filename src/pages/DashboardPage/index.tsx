@@ -46,20 +46,20 @@ export default function DashboardPage() {
         completionRate: 75,
     };
     const developmentQuestions = {
-        totalQuestions: 45,
+        totalQuestions: 5,
         categories: [
             {
                 name: "ด้านร่างกาย",
-                questions: 8,
-                averageCorrect: 6.2,
+                questions: 5,
+                averageCorrect: 5,
                 icon: Heart,
                 color: "text-red-500",
                 bg: "bg-red-50",
             },
             {
                 name: "ด้านอารมณ์-จิตใจ",
-                questions: 7,
-                averageCorrect: 5.8,
+                questions: 5,
+                averageCorrect: 5,
                 icon: Smile,
                 color: "text-yellow-500",
                 bg: "bg-yellow-50",
@@ -102,8 +102,8 @@ export default function DashboardPage() {
         {
             id: 1,
             room: "ห้องการ์ตูน",
-            totalEvaluated: 6,
-            totalChildren: 8,
+            totalEvaluated: 3,
+            totalChildren: 3,
             averageScore: 78,
             averageQuestions: 32,
             color: "from-rose-500 to-pink-600",
@@ -119,8 +119,8 @@ export default function DashboardPage() {
                 {
                     id: 1,
                     name: "น้องมะลิ",
-                    score: 85,
-                    questionsCorrect: 38,
+                    score: 100,
+                    questionsCorrect: 5,
                     status: "completed",
                     lastEvaluated: "2024-01-10",
                     weight: "ปกติ",
@@ -130,8 +130,8 @@ export default function DashboardPage() {
                 {
                     id: 2,
                     name: "น้องกุหลาบ",
-                    score: 72,
-                    questionsCorrect: 32,
+                    score: 100,
+                    questionsCorrect: 5,
                     status: "completed",
                     lastEvaluated: "2024-01-09",
                     weight: "ปกติ",
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                     id: 3,
                     name: "น้องดาวเรือง",
                     score: 80,
-                    questionsCorrect: 36,
+                    questionsCorrect: 4,
                     status: "completed",
                     lastEvaluated: "2024-01-08",
                     weight: "ปกติ",
@@ -154,8 +154,8 @@ export default function DashboardPage() {
         {
             id: 2,
             room: "ห้องม้าน้ำ",
-            totalEvaluated: 7,
-            totalChildren: 9,
+            totalEvaluated: 4,
+            totalChildren: 4,
             averageScore: 84,
             averageQuestions: 35,
             color: "from-amber-500 to-orange-600",
@@ -171,8 +171,8 @@ export default function DashboardPage() {
                 {
                     id: 9,
                     name: "น้องอรุณ",
-                    score: 88,
-                    questionsCorrect: 40,
+                    score: 100,
+                    questionsCorrect: 5,
                     status: "completed",
                     lastEvaluated: "2024-01-10",
                     weight: "ปกติ",
@@ -182,8 +182,8 @@ export default function DashboardPage() {
                 {
                     id: 10,
                     name: "น้องพิมพ์ใจ",
-                    score: 82,
-                    questionsCorrect: 37,
+                    score: 100,
+                    questionsCorrect: 5,
                     status: "completed",
                     lastEvaluated: "2024-01-09",
                     weight: "ปกติ",
@@ -193,8 +193,8 @@ export default function DashboardPage() {
                 {
                     id: 11,
                     name: "น้องสายใส",
-                    score: 86,
-                    questionsCorrect: 39,
+                    score: 100,
+                    questionsCorrect: 5,
                     status: "completed",
                     lastEvaluated: "2024-01-08",
                     weight: "ปกติ",
@@ -205,7 +205,7 @@ export default function DashboardPage() {
                     id: 12,
                     name: "น้องดวงใจ",
                     score: 80,
-                    questionsCorrect: 36,
+                    questionsCorrect: 4,
                     status: "completed",
                     lastEvaluated: "2024-01-07",
                     weight: "น้ำหนักน้อย",
@@ -217,8 +217,8 @@ export default function DashboardPage() {
         {
             id: 3,
             room: "ห้องโลมา",
-            totalEvaluated: 5,
-            totalChildren: 7,
+            totalEvaluated: 3,
+            totalChildren: 3,
             averageScore: 85,
             averageQuestions: 36,
             color: "from-emerald-500 to-green-600",
@@ -234,8 +234,8 @@ export default function DashboardPage() {
                 {
                     id: 18,
                     name: "น้องวิมล",
-                    score: 90,
-                    questionsCorrect: 41,
+                    score: 100,
+                    questionsCorrect: 5,
                     status: "completed",
                     lastEvaluated: "2024-01-10",
                     weight: "ปกติ",
@@ -245,8 +245,8 @@ export default function DashboardPage() {
                 {
                     id: 19,
                     name: "น้องสุนิสา",
-                    score: 85,
-                    questionsCorrect: 38,
+                    score: 80,
+                    questionsCorrect: 4,
                     status: "completed",
                     lastEvaluated: "2024-01-09",
                     weight: "ปกติ",
@@ -256,57 +256,13 @@ export default function DashboardPage() {
                 {
                     id: 20,
                     name: "น้องพรรณี",
-                    score: 82,
-                    questionsCorrect: 37,
+                    score: 100,
+                    questionsCorrect: 5,
                     status: "completed",
                     lastEvaluated: "2024-01-08",
                     weight: "น้ำหนักเกิน",
                     height: "ปกติ",
                     weightforheight: "อ้วน",
-                },
-                {
-                    id: 21,
-                    name: "น้องสุภาพ",
-                    score: 88,
-                    questionsCorrect: 40,
-                    status: "completed",
-                    lastEvaluated: "2024-01-07",
-                    weight: "ปกติ",
-                    height: "ปกติ",
-                    weightforheight: "ปกติ",
-                },
-                {
-                    id: 22,
-                    name: "น้องอัญชลี",
-                    score: 80,
-                    questionsCorrect: 36,
-                    status: "completed",
-                    lastEvaluated: "2024-01-06",
-                    weight: "น้ำหนักน้อย",
-                    height: "เตี้ย",
-                    weightforheight: "ผอม",
-                },
-                {
-                    id: 23,
-                    name: "น้องปราณี",
-                    score: 0,
-                    questionsCorrect: 0,
-                    status: "pending",
-                    lastEvaluated: null,
-                    weight: "-",
-                    height: "-",
-                    weightforheight: "-",
-                },
-                {
-                    id: 24,
-                    name: "น้องสุดใจ",
-                    score: 0,
-                    questionsCorrect: 0,
-                    status: "pending",
-                    lastEvaluated: null,
-                    weight: "-",
-                    height: "-",
-                    weightforheight: "-",
                 },
             ],
         },
@@ -381,10 +337,8 @@ export default function DashboardPage() {
     };
 
     const scoreRingColor = (s: number) => {
-        if (s >= 85) return "#22c55e"; // Green 500 สดขึ้น
-        if (s >= 75) return "#3b82f6"; // Blue 500 สดขึ้น
-        if (s >= 65) return "#f59e0b"; // Amber 500 อมส้มอ่านง่าย
-        return "#ef4444"; // Red 500 แดงสด
+        if (s >= 100) return "#22c55e";
+        return "#ef4444";
     };
 
     const getPhysicalStatusColor = (status: string) => {
@@ -432,23 +386,22 @@ export default function DashboardPage() {
 
     const getColor = (i: number) => COLORS[i % COLORS.length];
 
-const METRICS = [
-  { key: "evaluatedPercent", label: "% ประเมินแล้ว" },
-  { key: "averageScore",     label: "คะแนนเฉลี่ย (%)" },
-  { key: "progress",         label: "ความคืบหน้า (%)" },
-] as const;
+    const METRICS = [
+        { key: "evaluatedPercent", label: "% ประเมินแล้ว" },
+        { key: "averageScore", label: "คะแนนเฉลี่ย (%)" },
+        { key: "progress", label: "ความคืบหน้า (%)" },
+    ] as const;
 
-const selectedRooms = roomSummary.filter(r =>
-  compareSelectedRoomIds.includes(r.id)
-);
+    const selectedRooms = roomSummary.filter((r) =>
+        compareSelectedRoomIds.includes(r.id)
+    );
 
-const chartData = METRICS.map(m => ({
-  metric: m.label,
-  ...Object.fromEntries(
-    selectedRooms.map(r => [r.name, Number(r[m.key] ?? 0)])
-  ),
-}));
-
+    const chartData = METRICS.map((m) => ({
+        metric: m.label,
+        ...Object.fromEntries(
+            selectedRooms.map((r) => [r.name, Number(r[m.key] ?? 0)])
+        ),
+    }));
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50">
@@ -703,31 +656,47 @@ const chartData = METRICS.map(m => ({
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center justify-center md:min-w-[120px]">
+                                            <div className="flex flex-col items-center justify-center md:min-w-[140px] gap-2 text-center">
+                                                {/* หัวข้ออยู่ด้านบน */}
+                                                <div className="text-sm font-medium text-gray-700">
+                                                    การประเมินพัฒนาการ
+                                                </div>
+
+                                                {/* วงแหวนคะแนน */}
                                                 <div className="relative w-16 h-16">
                                                     {/* แทร็คสีจาง */}
                                                     <div className="absolute inset-0 rounded-full bg-gray-200" />
+
                                                     {/* วงแหวนเปอร์เซ็นต์ */}
                                                     <div
                                                         className="absolute inset-0 rounded-full"
                                                         style={{
                                                             background: `conic-gradient(${scoreRingColor(
                                                                 child.score
-                                                            )} ${
-                                                                child.score *
-                                                                3.6
-                                                            }deg, #e5e7eb 0deg)`,
+                                                            )}`,
                                                         }}
                                                         aria-label={`คะแนน ${child.score} เปอร์เซ็นต์`}
                                                     />
+
                                                     {/* ตรงกลาง */}
                                                     <div className="relative w-12 h-12 rounded-full bg-white flex items-center justify-center m-2">
-                                                        <span className="text-sm font-bold text-gray-800">
-                                                            {child.score}%
+                                                        <span
+                                                            className={`text-sm font-bold ${
+                                                                child.score >=
+                                                                100
+                                                                    ? "text-green-600"
+                                                                    : "text-red-600"
+                                                            }`}
+                                                        >
+                                                            {child.score >= 100
+                                                                ? "ผ่าน"
+                                                                : "ไม่ผ่าน"}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="ml-3 hidden sm:block">
+
+                                                {/* ข้อมูลจำนวนข้อถูก */}
+                                                <div className="hidden sm:block">
                                                     <p className="text-xs text-gray-500">
                                                         ตอบถูก
                                                     </p>
@@ -742,7 +711,11 @@ const chartData = METRICS.map(m => ({
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center space-x-3">
+                                            <div className="flex flex-col items-center space-x-3">
+                                                <div className="text-sm font-medium text-gray-700 mb-5">
+                                                    การประเมินการเจริญเติบโต
+                                                </div>
+
                                                 {/* Physical Status */}
                                                 <div className="flex flex-col space-y-1">
                                                     <span

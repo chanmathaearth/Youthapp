@@ -1,6 +1,5 @@
-"use client";
-
 import { useState } from "react";
+import Swal from "sweetalert2";
 import {
     Box,
     Container,
@@ -9,6 +8,7 @@ import {
     IconButton,
     Snackbar,
     Alert,
+    Chip,
 } from "@mui/material";
 import {
     Users,
@@ -25,6 +25,8 @@ import {
     UserX,
     Save,
     X,
+    Baby,
+    Delete,
 } from "lucide-react";
 
 type User = {
@@ -39,9 +41,9 @@ type User = {
 };
 
 type Room = {
+    capacity: number;
     id: number;
     name: string;
-    capacity: number;
     ageRange: string;
     teacher: string;
     imageUrl?: string; // สำหรับ preview
@@ -86,10 +88,7 @@ const SettingsPage = () => {
     // เปลี่ยนค่าในฟอร์ม
     const onEditChange = (field: keyof Room, value: string) => {
         if (!editRoom) return;
-        setEditRoom({
-            ...editRoom,
-            [field]: field === "capacity" ? Number(value) : (value as any),
-        });
+        setEditRoom({ ...editRoom, [field]: value as any });
     };
 
     const [editImageFile, setEditImageFile] = useState<File | null>(null);
@@ -239,10 +238,96 @@ const SettingsPage = () => {
                 "https://www.daynurseries.co.uk/wp-content/uploads/sites/3/2023/06/Nursery-school-children1.jpg",
         },
     ]);
+    
+const [students, setStudents] = useState([
+  {
+    id: 1,
+    name: "น้องมะลิ",
+    fullname: "เด็กหญิงมะลิ พูนสุข", // ✅ ชื่อจริง
+    parentName: "นางสมศรี พูนสุข",   // ✅ ผู้ปกครอง
+    room: "A",
+    lastEvaluationDate: "18/12/2024",
+    age: 3,
+    score: 85,
+    status: "กำลังเรียน",
+    email: "somsri@youthcenter.th",
+    phone: "084-567-8901",
+    role: "staff",
+    lastLogin: "18/12/2024 09:20",
+    avatar: "SS",
+  },
+  {
+    id: 2,
+    name: "น้องกุหลาบ",
+    fullname: "เด็กหญิงกุหลาบ แก้วใส",
+    parentName: "นายมานพ แก้วใส",
+    lastEvaluationDate: "18/12/2024",
+    room: "B",
+    age: 4,
+    score: 92,
+    status: "กำลังเรียน",
+    email: "somsri@youthcenter.th",
+    phone: "084-567-8901",
+    role: "staff",
+    lastLogin: "18/12/2024 09:20",
+    avatar: "SS",
+  },
+  {
+    id: 3,
+    name: "น้องดาวเรือง",
+    fullname: "เด็กหญิงดาวเรือง จันทร์เพ็ญ",
+    parentName: "นางอารี จันทร์เพ็ญ",
+    lastEvaluationDate: "18/12/2024",
+    room: "C",
+    age: 5,
+    score: 88,
+    status: "กำลังเรียน",
+    email: "somsri@youthcenter.th",
+    phone: "084-567-8901",
+    role: "staff",
+    lastLogin: "18/12/2024 09:20",
+    avatar: "SS",
+  },
+  {
+    id: 4,
+    name: "น้องมะม่วง",
+    fullname: "เด็กชายมะม่วง ศรีสวัสดิ์",
+    lastEvaluationDate: "18/12/2024",
+    parentName: "นายสุชาติ ศรีสวัสดิ์",
+    room: "A",
+    age: 3,
+    score: 78,
+    status: "พักการเรียน",
+    email: "somsri@youthcenter.th",
+    phone: "084-567-8901",
+    role: "staff",
+    lastLogin: "18/12/2024 09:20",
+    avatar: "SS",
+  },
+]);
+
+
+    const handleDeleteStudent = (id) => {
+        Swal.fire({
+            title: "คุณแน่ใจหรือไม่?",
+            text: "เมื่อลบแล้วจะไม่สามารถกู้คืนได้!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "ใช่, ลบเลย!",
+            cancelButtonText: "ยกเลิก",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setStudents(students.filter((student) => student.id !== id));
+                Swal.fire("ลบสำเร็จ!", "ข้อมูลนักเรียนถูกลบแล้ว", "success");
+                console.log("ลบข้อมูล student id: ", id);
+            }
+        });
+    };
 
     const [newRoom, setNewRoom] = useState({
         name: "",
-        capacity: "",
         ageRange: "",
         teacher: "",
         imageUrl: "",
@@ -322,12 +407,7 @@ const SettingsPage = () => {
     };
 
     const handleAddRoom = () => {
-        if (
-            !newRoom.name ||
-            !newRoom.capacity ||
-            !newRoom.ageRange ||
-            !newRoom.teacher
-        ) {
+        if (!newRoom.name || !newRoom.ageRange || !newRoom.teacher) {
             setSnackbar({
                 open: true,
                 message: "กรุณากรอกข้อมูลให้ครบถ้วน",
@@ -338,7 +418,6 @@ const SettingsPage = () => {
         const room: Room = {
             id: rooms.length + 1,
             name: newRoom.name,
-            capacity: Number.parseInt(newRoom.capacity),
             ageRange: newRoom.ageRange,
             teacher: newRoom.teacher,
             imageUrl: newRoom.imageUrl,
@@ -346,7 +425,6 @@ const SettingsPage = () => {
         setRooms([...rooms, room]);
         setNewRoom({
             name: "",
-            capacity: "",
             ageRange: "",
             teacher: "",
             imageUrl: "",
@@ -417,6 +495,12 @@ const SettingsPage = () => {
                                 label="จัดการห้องเรียน"
                                 className="normal-case text-[16px] font-semibold min-h-[72px] px-6 text-gray-700 gap-2"
                             />
+                            <Tab
+                                icon={<Baby size={20} />}
+                                label="จัดการเด็ก"
+                                iconPosition="start"
+                                className="normal-case text-[16px] font-semibold min-h-[72px] px-6 text-gray-700 gap-2 font-poppins"
+                            />
                         </Tabs>
                     </Box>
                     {/* Add Room */}
@@ -475,25 +559,6 @@ const SettingsPage = () => {
                                                     })
                                                 }
                                                 placeholder="เช่น ห้อง D"
-                                                className="border border-gray-300 rounded-xl px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                                            />
-                                        </div>
-
-                                        <div className="flex flex-col gap-1.5">
-                                            <label className="text-sm text-gray-600">
-                                                จำนวนเด็ก
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={newRoom.capacity}
-                                                onChange={(e) =>
-                                                    setNewRoom({
-                                                        ...newRoom,
-                                                        capacity:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                placeholder="25"
                                                 className="border border-gray-300 rounded-xl px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                                             />
                                         </div>
@@ -768,198 +833,191 @@ const SettingsPage = () => {
                         </div>
                     )}
                     {editRoomOpen && editRoom && (
-<div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4 sm:p-6 md:p-8">
-  <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">                            <button
-                                onClick={closeEditRoom}
-                                className="absolute inset-0 bg-black/40"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center p-4">
-                                <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden">
-                                    {/* header */}
-                                    <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
-                                        <div className="flex items-center gap-2">
-                                            <Edit
-                                                className="text-blue-500"
-                                                size={20}
-                                            />
-                                            <p className="font-semibold text-lg">
-                                                แก้ไขห้องเรียน
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={() => {
-                                                clearPickedEditImage();
-                                                closeEditRoom();
-                                            }}
-                                            className="p-2 rounded-lg hover:bg-gray-100"
-                                            aria-label="Close"
-                                        >
-                                            <X size={18} />
-                                        </button>
-                                    </div>
-
-                                    {/* body */}
-                                    <div className="px-5 py-4">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {/* รูปภาพ (แก้เฉพาะเมื่อกดเปลี่ยนรูป) */}
-                                            <div className="sm:col-span-2">
-                                                <label className="block text-sm text-gray-600 mb-2">
-                                                    รูปประจำห้อง
-                                                </label>
-
-                                                <div className="aspect-video w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 relative">
-                                                    <img
-                                                        src={
-                                                            editImagePreview ||
-                                                            (editRoom as any)
-                                                                .imageUrl ||
-                                                            "https://via.placeholder.com/800x450?text=No+Image"
-                                                        }
-                                                        alt="room"
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                    {/* ปุ่มเปลี่ยนรูป */}
-                                                    <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                                                        {editImagePreview && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={
-                                                                    clearPickedEditImage
-                                                                }
-                                                                className="px-3 h-10 rounded-xl border-2 border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                                                            >
-                                                                ยกเลิกการเปลี่ยนรูป
-                                                            </button>
-                                                        )}
-                                                        <label className="px-3 h-10 inline-flex items-center rounded-xl bg-blue-600 text-white cursor-pointer hover:bg-blue-700">
-                                                            เลือกรูปใหม่
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                className="hidden"
-                                                                onChange={(e) =>
-                                                                    onPickEditImage(
-                                                                        e.target
-                                                                            .files?.[0] ||
-                                                                            undefined
-                                                                    )
-                                                                }
-                                                            />
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <p className="text-xs text-gray-500 mt-2">
-                                                    รองรับ .jpg .png .webp
+                        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4 sm:p-6 md:p-8">
+                            <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                                {" "}
+                                <button
+                                    onClick={closeEditRoom}
+                                    className="absolute inset-0 bg-black/40"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center p-4">
+                                    <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden">
+                                        {/* header */}
+                                        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+                                            <div className="flex items-center gap-2">
+                                                <Edit
+                                                    className="text-blue-500"
+                                                    size={20}
+                                                />
+                                                <p className="font-semibold text-lg">
+                                                    แก้ไขห้องเรียน
                                                 </p>
                                             </div>
+                                            <button
+                                                onClick={() => {
+                                                    clearPickedEditImage();
+                                                    closeEditRoom();
+                                                }}
+                                                className="p-2 rounded-lg hover:bg-gray-100"
+                                                aria-label="Close"
+                                            >
+                                                <X size={18} />
+                                            </button>
+                                        </div>
 
-                                            {/* ฟิลด์อื่น ๆ */}
-                                            <div className="flex flex-col gap-1.5">
-                                                <label className="text-sm text-gray-600">
-                                                    ชื่อห้อง
-                                                </label>
-                                                <input
-                                                    className="h-11 rounded-xl border border-gray-300 px-3 outline-none focus:ring-2 focus:ring-blue-500/50"
-                                                    value={editRoom.name}
-                                                    onChange={(e) =>
-                                                        onEditChange(
-                                                            "name",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                            </div>
+                                        {/* body */}
+                                        <div className="px-5 py-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {/* รูปภาพ (แก้เฉพาะเมื่อกดเปลี่ยนรูป) */}
+                                                <div className="sm:col-span-2">
+                                                    <label className="block text-sm text-gray-600 mb-2">
+                                                        รูปประจำห้อง
+                                                    </label>
 
-                                            <div className="flex flex-col gap-1.5">
-                                                <label className="text-sm text-gray-600">
-                                                    จำนวนเด็ก
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    className="h-11 rounded-xl border border-gray-300 px-3 outline-none focus:ring-2 focus:ring-blue-500/50"
-                                                    value={editRoom.capacity}
-                                                    onChange={(e) =>
-                                                        onEditChange(
-                                                            "capacity",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                            </div>
+                                                    <div className="aspect-video w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 relative">
+                                                        <img
+                                                            src={
+                                                                editImagePreview ||
+                                                                (
+                                                                    editRoom as any
+                                                                ).imageUrl ||
+                                                                "https://via.placeholder.com/800x450?text=No+Image"
+                                                            }
+                                                            alt="room"
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                        {/* ปุ่มเปลี่ยนรูป */}
+                                                        <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                                                            {editImagePreview && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={
+                                                                        clearPickedEditImage
+                                                                    }
+                                                                    className="px-3 h-10 rounded-xl border-2 border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                                                                >
+                                                                    ยกเลิกการเปลี่ยนรูป
+                                                                </button>
+                                                            )}
+                                                            <label className="px-3 h-10 inline-flex items-center rounded-xl bg-blue-600 text-white cursor-pointer hover:bg-blue-700">
+                                                                เลือกรูปใหม่
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    className="hidden"
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        onPickEditImage(
+                                                                            e
+                                                                                .target
+                                                                                .files?.[0] ||
+                                                                                undefined
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 mt-2">
+                                                        รองรับ .jpg .png .webp
+                                                    </p>
+                                                </div>
 
-                                            <div className="flex flex-col gap-1.5">
-                                                <label className="text-sm text-gray-600">
-                                                    ช่วงอายุ
-                                                </label>
-                                                <input
-                                                    className="h-11 rounded-xl border border-gray-300 px-3 outline-none focus:ring-2 focus:ring-blue-500/50"
-                                                    value={editRoom.ageRange}
-                                                    onChange={(e) =>
-                                                        onEditChange(
-                                                            "ageRange",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                            </div>
+                                                {/* ฟิลด์อื่น ๆ */}
+                                                <div className="flex flex-col gap-1.5">
+                                                    <label className="text-sm text-gray-600">
+                                                        ชื่อห้อง
+                                                    </label>
+                                                    <input
+                                                        className="h-11 rounded-xl border border-gray-300 px-3 outline-none focus:ring-2 focus:ring-blue-500/50"
+                                                        value={editRoom.name}
+                                                        onChange={(e) =>
+                                                            onEditChange(
+                                                                "name",
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
 
-                                            <div className="flex flex-col gap-1.5">
-                                                <label className="text-sm text-gray-600">
-                                                    ครูประจำ
-                                                </label>
-                                                <select
-                                                    className="h-11 rounded-xl border border-gray-300 px-3 outline-none focus:ring-2 focus:ring-blue-500/50"
-                                                    value={editRoom.teacher}
-                                                    onChange={(e) =>
-                                                        onEditChange(
-                                                            "teacher",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        เลือกครูประจำ
-                                                    </option>
-                                                    {users
-                                                        .filter(
-                                                            (u) =>
-                                                                u.role ===
-                                                                    "teacher" &&
-                                                                u.status ===
-                                                                    "active"
-                                                        )
-                                                        .map((t) => (
-                                                            <option
-                                                                key={t.id}
-                                                                value={t.name}
-                                                            >
-                                                                {t.name}
-                                                            </option>
-                                                        ))}
-                                                </select>
+                                                <div className="flex flex-col gap-1.5">
+                                                    <label className="text-sm text-gray-600">
+                                                        ช่วงอายุ
+                                                    </label>
+                                                    <input
+                                                        className="h-11 rounded-xl border border-gray-300 px-3 outline-none focus:ring-2 focus:ring-blue-500/50"
+                                                        value={
+                                                            editRoom.ageRange
+                                                        }
+                                                        onChange={(e) =>
+                                                            onEditChange(
+                                                                "ageRange",
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-1.5">
+                                                    <label className="text-sm text-gray-600">
+                                                        ครูประจำ
+                                                    </label>
+                                                    <select
+                                                        className="h-11 rounded-xl border border-gray-300 px-3 outline-none focus:ring-2 focus:ring-blue-500/50"
+                                                        value={editRoom.teacher}
+                                                        onChange={(e) =>
+                                                            onEditChange(
+                                                                "teacher",
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    >
+                                                        <option value="">
+                                                            เลือกครูประจำ
+                                                        </option>
+                                                        {users
+                                                            .filter(
+                                                                (u) =>
+                                                                    u.role ===
+                                                                        "teacher" &&
+                                                                    u.status ===
+                                                                        "active"
+                                                            )
+                                                            .map((t) => (
+                                                                <option
+                                                                    key={t.id}
+                                                                    value={
+                                                                        t.name
+                                                                    }
+                                                                >
+                                                                    {t.name}
+                                                                </option>
+                                                            ))}
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {/* footer */}
-                                    <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-200">
-                                        <button
-                                            onClick={() => {
-                                                clearPickedEditImage();
-                                                closeEditRoom();
-                                            }}
-                                            className="px-4 h-11 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-gray-50"
-                                        >
-                                            ยกเลิก
-                                        </button>
-                                        <button
-                                            onClick={saveEditRoom}
-                                            className="px-4 h-11 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
-                                        >
-                                            บันทึก
-                                        </button>
+                                        {/* footer */}
+                                        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-200">
+                                            <button
+                                                onClick={() => {
+                                                    clearPickedEditImage();
+                                                    closeEditRoom();
+                                                }}
+                                                className="px-4 h-11 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-gray-50"
+                                            >
+                                                ยกเลิก
+                                            </button>
+                                            <button
+                                                onClick={saveEditRoom}
+                                                className="px-4 h-11 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+                                            >
+                                                บันทึก
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
                                 </div>
                             </div>
                         </div>
@@ -1549,6 +1607,7 @@ const SettingsPage = () => {
                                         </p>
                                     </div>
                                 </div>
+                                {/* Average */}
                                 <div className="bg-purple-50 border border-purple-200 rounded-2xl">
                                     <div className="text-center p-6">
                                         <p className="text-2xl font-extrabold text-purple-600">
@@ -1561,6 +1620,215 @@ const SettingsPage = () => {
                                         </p>
                                         <p className="text-purple-700 text-sm">
                                             เฉลี่ยต่อห้อง
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {activeTab === 2 && (
+                        <div className="p-6">
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-8">
+                                <div>
+                                    <p className="font-bold text-[#111827] mb-1 text-2xl">
+                                        จัดการผู้ใช้ในระบบ
+                                    </p>
+                                    <p className="text-[#6B7280] text-lg">
+                                        เพิ่ม แก้ไข และจัดการสิทธิ์ผู้ใช้งาน
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setOpenUserDialog(true)}
+                                    className="bg-blue-500 hover:bg-blue-600 px-5 py-2 text-white rounded-xl font-semibold shadow-sm text-lg"
+                                >
+                                    เพิ่มเด็กใหม่
+                                </button>
+                            </div>
+
+                            {/* Users List */}
+                            <div className="flex flex-col gap-4">
+                                {students.map((student) => (
+                                    <div
+                                        key={student.id}
+                                        className="border-2 border-gray-200 p-3 rounded-2xl transition-all duration-300 hover:border-gray-300 hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)]"
+                                    >
+                                        <div className="p-3 sm:p-4">
+                                            {/* แถวบน: บนมือถือให้ซ้อนเป็นคอลัมน์ */}
+                                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                                {/* ซ้าย: รูป + ชื่อ + ชิป + รายละเอียดติดต่อ */}
+                                                <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                                                    {/* รูป */}
+                                                    <div className="shrink-0">
+                                                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white font-bold text-base sm:text-lg grid place-content-center">
+                                                            {student.avatar}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* เนื้อหา */}
+                                                    <div className="flex-1 min-w-0">
+                                                        {/* ชื่อ + ชิป */}
+                                                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1.5">
+                                                                                                                        <p className="text-base sm:text-lg font-medium truncate max-w-full">
+                                                                {student.fullname}
+                                                            </p>
+                                                            <span className="rounded-full text-[10px] sm:text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600">
+                                                                {student.name}
+                                                            </span>
+                                                            <span className="rounded-full text-[10px] sm:text-xs font-semibold px-2.5 py-1 bg-emerald-100 text-emerald-600">
+                                                                ห้อง{" "}
+                                                                {student.room}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* รายละเอียดติดต่อ: 1 คอลัมน์บนมือถือ → 2 คอลัมน์ที่ sm → 3 คอลัมน์ที่ lg */}
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mt-2">
+                                                            <div className="flex items-center gap-2 min-w-0">
+                                                                <Calendar
+                                                                    size={16}
+                                                                    className="text-blue-500 shrink-0"
+                                                                />
+                                                                <p className="truncate">
+                                                                    อายุ{" "}
+                                                                    {
+                                                                        student.age
+                                                                    }{" "}
+                                                                    ปี
+                                                                </p>
+                                                            </div>
+
+
+<div className="flex items-center gap-2 min-w-0">
+                                                                                                                                                              <Users size={16} color="#10B981" />
+
+                                                                {/* ทำให้กดโทรได้ */}
+                                                                <a
+                                                                    href={`tel:${student.phone.replace(
+                                                                        /[^\d+]/g,
+                                                                        ""
+                                                                    )}`}
+                                                                    className="truncate hover:underline"
+                                                                >
+                                                                    {
+                                                                        student.parentName
+                                                                    }
+                                                                </a>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 min-w-0">
+                                                                <Phone
+                                                                    size={16}
+                                                                    className="text-emerald-500 shrink-0"
+                                                                />
+                                                                {/* ทำให้กดโทรได้ */}
+                                                                <a
+                                                                    href={`tel:${student.phone.replace(
+                                                                        /[^\d+]/g,
+                                                                        ""
+                                                                    )}`}
+                                                                    className="truncate hover:underline"
+                                                                >
+                                                                    {
+                                                                        student.phone
+                                                                    }
+                                                                </a>
+                                                            </div>
+
+                                                            <div className="flex items-center gap-2 min-w-0">
+                                                                <Calendar
+                                                                    size={16}
+                                                                    className="text-purple-500 shrink-0"
+                                                                />
+                                                                <p className="truncate">
+                                                                    ประเมินล่าสุด:{" "}
+                                                                    {
+                                                                        student.lastEvaluationDate
+                                                                    }
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* ขวา: ปุ่ม → เรียงลง (full width) บนมือถือ */}
+                                                <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
+                                                    <button
+                                                        onClick={() =>
+                                                            openEdit(student.id)
+                                                        }
+                                                        className="w-full sm:w-auto px-3 py-2 border-2 border-blue-600 text-blue-600 rounded-[10px] hover:bg-blue-50 flex items-center justify-center"
+                                                    >
+                                                        <Edit size={16} />
+                                                    </button>
+
+                                                    <button
+                                                        onClick={
+                                                            () =>
+                                                                handleDeleteStudent(
+                                                                    student.id
+                                                                ) // handleDelete สำหรับการลบข้อมูลของ student
+                                                        }
+                                                        className="w-full sm:w-auto px-3 py-2 border-2 rounded-[10px] flex items-center justify-center border-red-600 text-red-600 hover:bg-red-50"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Stats */}
+                            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mt-8">
+                                <div className="bg-blue-50 border border-blue-200 rounded-2xl">
+                                    <div className="text-center p-6">
+                                        <p className="text-2xl font-extrabold text-blue-600">
+                                            {users.length}
+                                        </p>
+                                        <p className="text-blue-700 text-sm">
+                                            ผู้ใช้ทั้งหมด
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl">
+                                    <div className="text-center p-6">
+                                        <p className="text-2xl font-extrabold text-emerald-600">
+                                            {
+                                                users.filter(
+                                                    (u) => u.status === "active"
+                                                ).length
+                                            }
+                                        </p>
+                                        <p className="text-emerald-700 text-sm">
+                                            ใช้งานได้
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-purple-50 border border-purple-200 rounded-2xl">
+                                    <div className="text-center p-6">
+                                        <p className="text-2xl font-extrabold text-purple-600">
+                                            {
+                                                users.filter(
+                                                    (u) => u.role === "teacher"
+                                                ).length
+                                            }
+                                        </p>
+                                        <p className="text-purple-700 text-sm">
+                                            ครู
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-red-50 border border-red-200 rounded-2xl">
+                                    <div className="text-center p-6">
+                                        <p className="text-2xl font-extrabold text-red-600">
+                                            {
+                                                users.filter(
+                                                    (u) => u.role === "admin"
+                                                ).length
+                                            }
+                                        </p>
+                                        <p className="text-red-700 text-sm">
+                                            ผู้ดูแลระบบ
                                         </p>
                                     </div>
                                 </div>

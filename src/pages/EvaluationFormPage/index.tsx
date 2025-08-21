@@ -25,11 +25,6 @@ export default function EvaluationFormPage() {
       short: "GM",
     },
     {
-        question: "mock question",
-        category: "ด้านการเคลื่อนไหว Gross Motor (GM)",
-        short: "GM",
-      },
-    {
       question: "หยิบของชิ้นเล็กๆ ได้ด้วยนิ้วโป้งและนิ้วชี้",
       category: "ด้านการใช้กล้ามเนื้อมัดเล็กและสติปัญญา Fine Motor (FM)",
       short: "FM",
@@ -203,12 +198,19 @@ export default function EvaluationFormPage() {
         <div className="mt-8 text-center">
           <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-2xl p-6 mb-6">
             <h3 className="text-xl font-bold mb-2">ผลการประเมิน</h3>
-            <div className="text-4xl font-bold mb-2">
-              {checkedItems.size} / {items.length}
-            </div>
-            <p className="text-blue-100">
-              ข้อที่ทำได้ ({Math.round((checkedItems.size / items.length) * 100)}%)
-            </p>
+<div
+  className={`text-4xl font-bold mb-2 ${
+    checkedItems.size === items.length ? "text-white" : "text-white"
+  }`}
+>
+  {checkedItems.size === items.length
+    ? "ผ่าน"
+    : "ไม่ผ่าน"}
+</div>
+<p className="text-blue-100">
+  ทำได้ {checkedItems.size} จาก {items.length} ข้อ ({Math.round((checkedItems.size / items.length) * 100)}%)
+</p>
+
           </div>
           <div className="flex justify-center">
             <button

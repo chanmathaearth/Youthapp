@@ -2,6 +2,7 @@ import { useState } from "react";
 import LanguageToggle from "./languageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const Topbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -11,9 +12,30 @@ const Topbar = () => {
     const onToggleMenu = () => {
         setIsOpen(!isOpen);
     };
-
     const handleLogout = () => {
-        navigate("/login");
+        Swal.fire({
+            icon: "success",
+            title: "Logged out",
+            text: "You have been logged out successfully.",
+            showConfirmButton: false,
+            timer: 1500,
+        });
+
+        // clear token
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("role");
+        localStorage.removeItem("token");
+                localStorage.removeItem("user_ID");
+
+                        localStorage.removeItem("username");
+
+
+        // redirect
+        setTimeout(() => navigate("/login"), 1600);
+
         console.log("logout clicked");
     };
 
@@ -68,7 +90,7 @@ const Topbar = () => {
                         {t("topbar.signout")}
                     </button>
                     <LanguageToggle />
-                                                            <button onClick={() => navigate("/setting")}>
+                    <button onClick={() => navigate("/setting")}>
                         <svg
                             className="w-8 h-8 text-gray-800 hover:text-blue-500"
                             aria-hidden="true"

@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "room": "การ์ตูน",
+    "teacher": "วราพร",
+    "minAgeInMonths": 3,
+    "maxAgeInMonths": 18,
+    "participants": 25,
+    "rating": 4.8,
+    "image": "https://research.eef.or.th/wp-content/uploads/2022/07/kids-f-1024x683.jpg"
+  },
+  {
+    "id": 2,
+    "room": "ม้าน้ำ",
+    "teacher": "วรรณา",
+    "minAgeInMonths": 19,
+    "maxAgeInMonths": 30,
+    "participants": 25,
+    "rating": 4.9,
+    "image": "https://research.eef.or.th/wp-content/uploads/2022/07/kids-f-1024x683.jpg"
+  },
+  {
+    "id": 3,
+    "room": "โลมา",
+    "teacher": "วลีวัล",
+    "minAgeInMonths": 31,
+    "maxAgeInMonths": 48,
+    "participants": 25,
+    "rating": 4.7,
+    "image": "https://research.eef.or.th/wp-content/uploads/2022/07/kids-f-1024x683.jpg"
+  }
+]

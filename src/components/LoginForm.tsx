@@ -1,19 +1,61 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useMutation } from "@tanstack/react-query";
+import Swal from "sweetalert2";
+import { postBody } from "../helpers"; // ✅ แก้ path ตามโปรเจกต์
+
+interface LoginResponse {
+  access: string;
+  refresh: string;
+}
 
 const LoginForm = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+
+  // mutation สำหรับ login
+  const { mutate, isPending } = useMutation<
+    LoginResponse,
+    Error,
+    { username: string; password: string }
+  >({
+    mutationFn: ({ username, password }) =>
+      postBody("authen/api/v1/login", { username, password }),
+
+    onSuccess: (data) => {
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+
+      Swal.fire({
+        icon: "success",
+        title: t("login.success") || "Login Successful",
+        text: t("login.redirecting") || "Redirecting to dashboard...",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      setTimeout(() => navigate("/"), 1600);
+    },
+
+    onError: (err: any) => {
+      Swal.fire({
+        icon: "error",
+        title: t("login.failed") || "Login Failed",
+        text:
+          err?.response?.data?.detail ||
+          err?.message ||
+          "Invalid username or password",
+      });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submit!", { username, password });
-    if (username && password) {
-      navigate("/");
-    }
+    mutate({ username, password });
   };
 
   return (
@@ -48,9 +90,36 @@ const LoginForm = () => {
 
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-300 hover:brightness-120 text-white font-bold py-3 rounded-full flex items-center justify-center gap-2"
+          disabled={isPending}
+          className="w-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-300 hover:brightness-110 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3 rounded-full flex items-center justify-center gap-2"
         >
-          <span>{t("login.continue")}</span>
+          {isPending ? (
+            <>
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                />
+              </svg>
+              <span>{t("login.loading") || "Loading..."}</span>
+            </>
+          ) : (
+            <span>{t("login.continue")}</span>
+          )}
         </button>
       </form>
     </div>

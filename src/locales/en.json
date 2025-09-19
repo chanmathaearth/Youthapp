@@ -1,11 +1,15 @@
 {
     "login": {
-        "title": "Login",
+        "title": "Sign In",
+        "welcome": "Welcome back! Please login to continue.",
+        "forgot_password": "Forgot your password?",
         "username": "Username",
         "password": "Password",
-        "welcome": "Welcome back! Login to access.",
-        "forgot_password": "Did you forget your password?",
-        "continue": "Continue"
+        "continue": "Continue",
+        "loading": "Logging in...",
+        "success": "Login Successful",
+        "redirecting": "Redirecting to dashboard...",
+        "failed": "Login Failed"
     },
     "topbar": {
         "title": "YOUTHAPP",

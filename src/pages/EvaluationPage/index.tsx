@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import calendar from "../../assets/calendar.svg";
 import user from "../../assets/user.svg";
 import Table_ from "../../components/Table";
-import Modal from "../../components/Modal";
+import Modal from "../../components/AddChildModal";
 import StatCard from "../../components/StatCard";
 import circlecheck from "../../assets/circlecheck.svg";
 import alert from "../../assets/alert.svg";

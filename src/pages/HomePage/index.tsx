@@ -1,41 +1,20 @@
 import Card from "../../components/Card";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { getAll } from "../../helpers"
 
 const HomePage = () => {
     const { t } = useTranslation();
 
-    const programs = [
-        {
-            id: 1,
-            room: "การ์ตูน",
-            teacher: "วราพร",
-            minAgeInMonths: 3,
-            maxAgeInMonths: 18,
-            participants: 25,
-            rating: 4.8,
-            image: "https://research.eef.or.th/wp-content/uploads/2022/07/kids-f-1024x683.jpg",
+    const { data: programs } = useQuery({
+        queryKey: ["programs"],
+        queryFn: async () => {
+            const response = await getAll("room/api/v1/room");
+            console.log(response)
+            return response;
         },
-        {
-            id: 2,
-            room: "ม้าน้ำ",
-            teacher: "วรรณา",
-            minAgeInMonths: 19,
-            maxAgeInMonths: 30,
-            participants: 25,
-            rating: 4.9,
-            image: "https://research.eef.or.th/wp-content/uploads/2022/07/kids-f-1024x683.jpg",
-        },
-        {
-            id: 3,
-            room: "โลมา",
-            teacher: "วลีวัล",
-            minAgeInMonths: 31,
-            maxAgeInMonths: 48,
-            participants: 25,
-            rating: 4.7,
-            image: "https://research.eef.or.th/wp-content/uploads/2022/07/kids-f-1024x683.jpg",
-        },
-    ];
+        initialData: [],
+    });
 
     return (
         <div className="relative w-screen h-screen overflow-hidden bg-gradient-to-r from-blue-50 via-sky-50 to-cyan-50">
@@ -58,7 +37,7 @@ const HomePage = () => {
                     </div>
 
                     {/* Programs Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {programs.map((program) => (
                             <Card
                                 key={program.id}
@@ -71,7 +50,7 @@ const HomePage = () => {
                                 image={program.image}
                             />
                         ))}
-                    </div>
+                    </div> */}
                 </main>
             </div>
         </div>

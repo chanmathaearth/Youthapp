@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosInstance from "../helpers/axiosInstance"
 
 export const getAll = async (url: string) => {
-  const response = await axiosInstance.get(`${url}/`);
+  const response = await axiosInstance.get(`${url}`);
   return response.data;
 };
 

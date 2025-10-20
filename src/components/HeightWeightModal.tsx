@@ -1,4 +1,4 @@
-"use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type React from "react";
 import { useState, useEffect } from "react";
@@ -45,21 +45,12 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
 }) => {
     const [showBasicGraph, setShowBasicGraph] = useState(false);
 
-    // สมมติว่ามีตัวแปรเหล่านี้อยู่แล้ว
-    // const gender: "male" | "female"
-    // const ageInMonths: number
-    // const height: number
-    // const weight: number
-    // const growthReference = JSON.parse(...ไฟล์ JSON...)
-
     const ageKey = String(Math.round(ageInMonths));
 
-    // ดึงเกณฑ์ตามอายุ (HFA/WFA) และตามส่วนสูง (WFH)
     const hfaAtAge = growthReference[gender]?.HFA?.[ageKey]; // ส่วนสูงตามอายุ
     const wfaAtAge = growthReference[gender]?.WFA?.[ageKey]; // น้ำหนักตามอายุ
     const wfhByHeight = growthReference[gender]?.WFH; // น้ำหนักตามส่วนสูง (key เป็นส่วนสูง)
 
-    // utility: แปลงช่วงที่ไม่มีเพดาน หรือมี Infinity ให้ใช้งานได้เสมอ
     const normalizeRanges = (ranges?: Record<string, [number, number]>) => {
         if (!ranges) return undefined;
         const out: Record<string, [number, number]> = {};
@@ -75,9 +66,8 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
     const hfaRanges = normalizeRanges(hfaAtAge); // height categories by age
     const wfaRanges = normalizeRanges(wfaAtAge);
 
-    const hKey = String(Math.round(height));
+    const hKey = Number(height || 0).toFixed(1);
     const wfhRanges = normalizeRanges(wfhByHeight?.[hKey]);
-
     useEffect(() => {
         if (!hfaRanges || !wfaRanges) {
             Swal.fire({
@@ -117,11 +107,8 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
 
     // เลือกหมวดหมู่
     const weightCategory = getRangeCategory(weight, wfaRanges);
-
     const heightCategory = getRangeCategory(height, hfaRanges);
-    const weightForHeightCategory = wfhRanges
-        ? getRangeCategory(weight, wfhRanges)
-        : "ไม่ทราบ";
+    const weightForHeightCategory = getRangeCategory(weight, wfhRanges);
 
     // ข้อมูลกราฟ
     const chartDataWeight = chartDataFromRanges(
@@ -193,15 +180,14 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
         return data;
     };
 
-    // x = height (cm), y = upper bound ของแต่ละช่วง
     const convertWeightForHeightData = (
         ref: any,
         gender: "male" | "female",
         minH = 65,
         maxH = 120,
-        step = 1
+        step = 0.5 // ✅ ใช้ 0.5 เพราะ key ใน JSON มีทุกครึ่งเซน
     ) => {
-        const WFH = ref[gender]?.WFH || {};
+        const WFH = ref[gender]?.WFH || {}; // ✅ ตรงกับโครงสร้างที่คุณใช้
 
         const top = (
             r: Record<string, [number, number]> | undefined,
@@ -219,7 +205,7 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
         }> = [];
 
         for (let h = minH; h <= maxH; h += step) {
-            const key = String(Math.round(h));
+            const key = h.toFixed(1); // ✅ ตรงกับ JSON key
             const r = WFH[key];
             if (!r) continue;
 
@@ -228,26 +214,19 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
             const normal = top(r, "สมส่วน") ?? lowMid;
             const highMid = top(r, "ท้วม") ?? normal;
             const preObese = top(r, "เริ่มอ้วน") ?? highMid;
-            let obeseTop = top(r, "อ้วน");
-
-            if (typeof obeseTop === "number" && Number.isFinite(obeseTop)) {
-                // ok
-            } else {
-
-                const stepUp = Math.max(0.8, preObese - highMid);
-                obeseTop = preObese + stepUp;
-            }
+            const obeseTop = top(r, "อ้วน") ?? preObese + 1;
 
             data.push({
-                height: h,
-                low: Number(low),
-                lowMid: Number(lowMid),
-                normal: Number(normal),
-                highMid: Number(highMid),
-                preObese: Number(preObese),
-                obese: Number(obeseTop),
+                height: parseFloat(key),
+                low,
+                lowMid,
+                normal,
+                highMid,
+                preObese,
+                obese: obeseTop,
             });
         }
+
         return data;
     };
 
@@ -317,15 +296,29 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                         fontSize: "1.1rem",
                     }}
                 >
-                    <span className="text-bold text-black">ชื่อ </span>
-                    <span className="text-black">น้อง{name}</span>
-                    <span className="text-bold text-black"> เพศ </span>
-                    <span className="text-black">
-                        {gender === "male" ? "ชาย" : "หญิง"}
-                    </span>
-                    <span className="text-bold text-black"> อายุ </span>
-                    <span className="text-black">{ageInMonths}</span>
-                    <span className="text-bold text-black"> เดือน </span>
+                    <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 text-gray-700 text-lg font-medium">
+                        <span className="font-semibold text-blue-700">
+                            ชื่อ:
+                        </span>
+                        <span className="text-black">น้อง{name}</span>
+
+                        <span className="mx-2 text-gray-400">|</span>
+
+                        <span className="font-semibold text-pink-600">
+                            เพศ:
+                        </span>
+                        <span className="text-black">
+                            {gender === "male" ? "ชาย" : "หญิง"}
+                        </span>
+
+                        <span className="mx-2 text-gray-400">|</span>
+
+                        <span className="font-semibold text-emerald-600">
+                            อายุ:
+                        </span>
+                        <span className="text-black">{ageInMonths}</span>
+                        <span className="text-gray-600">เดือน</span>
+                    </div>
                 </Typography>
 
                 {/* ปุ่มสลับกราฟ */}
@@ -336,7 +329,7 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                     >
                         {showBasicGraph
                             ? "แสดงกราฟน้ำหนักและส่วนสูง"
-                            : "ดูกราฟมาตรฐาน"}
+                            : "แสดงกราฟมาตรฐาน"}
                     </button>
                 </div>
 
@@ -362,6 +355,11 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                             {weightCategory})
                                         </span>
                                     </div>
+                                      <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200">
+    <span className="text-pink-700 font-medium">
+      น้ำหนักตามส่วนสูง: {weight} กก. ({weightForHeightCategory})
+    </span>
+  </div>
                                 </div>
                             </div>
 
@@ -980,6 +978,11 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                             {weightCategory})
                                         </span>
                                     </div>
+                                      <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200">
+    <span className="text-pink-700 font-medium">
+      น้ำหนักตามส่วนสูง: {weight} กก. ({weightForHeightCategory})
+    </span>
+  </div>
                                 </div>
                             </div>{" "}
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -998,46 +1001,39 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                         </p>
                                     </div>
                                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
-                                        <ResponsiveContainer
-                                            width="100%"
-                                            height={300}
-                                        >
-                                            <RadarChart
-                                                outerRadius="80%"
-                                                data={chartDataHeight}
-                                            >
-                                                <PolarGrid />
-                                                <PolarAngleAxis
-                                                    dataKey="category"
-                                                    tick={{ fontSize: 12 }}
-                                                />
-                                                <PolarRadiusAxis
-                                                    angle={30}
-                                                    domain={[0, 150]}
-                                                    tick={{ fontSize: 10 }}
-                                                />
-                                                <Tooltip />
-                                                <Legend />
-                                                <Radar
-                                                    name="ค่ากลาง"
-                                                    dataKey="reference"
-                                                    stroke="#90CAF9"
-                                                    fill="#90CAF9"
-                                                    fillOpacity={0.3}
-                                                />
-                                                <Radar
-                                                    name={`ส่วนสูง (${height} cm)`}
-                                                    dataKey="actual"
-                                                    stroke="#1976D2"
-                                                    fill="#1976D2"
-                                                    fillOpacity={0.5}
-                                                    dot={{
-                                                        fill: "#1976D2",
-                                                        r: 5,
-                                                    }}
-                                                />
-                                            </RadarChart>
-                                        </ResponsiveContainer>
+<ResponsiveContainer width="100%" height={300}>
+        <RadarChart outerRadius="75%" data={chartDataHeight}>
+          <PolarGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+          <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: "#374151" }} />
+          <PolarRadiusAxis domain={[0, 150]} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "white",
+              borderRadius: 8,
+              border: "1px solid #d1d5db",
+              fontSize: 12,
+            }}
+          />
+          <Radar
+            name="ค่ากลางมาตรฐาน"
+            dataKey="reference"
+            stroke="#3B82F6"
+            strokeWidth={2}
+            fill="#60A5FA"
+            fillOpacity={0.25}
+          />
+          <Radar
+            name={`ส่วนสูง (${height} ซม.)`}
+            dataKey="actual"
+            stroke="#1E3A8A"
+            strokeWidth={3}
+            fill="#1E3A8A"
+            fillOpacity={0.3}
+            dot={{ fill: "#2563EB", r: 4 }}
+          />
+          <Legend verticalAlign="bottom" height={30} wrapperStyle={{ fontSize: 12 }} />
+        </RadarChart>
+      </ResponsiveContainer>
                                     </div>
                                 </div>
                                 <div className="w-full">
@@ -1053,45 +1049,43 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                             ({weightCategory})
                                         </p>
                                     </div>
-                                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
-                                        <ResponsiveContainer
-                                            width="100%"
-                                            height={300}
-                                        >
-                                            <RadarChart
-                                                outerRadius="80%"
-                                                data={chartDataWeight}
-                                            >
-                                                <PolarGrid />
-                                                <PolarAngleAxis
-                                                    dataKey="category"
-                                                    tick={{ fontSize: 12 }}
-                                                />
-                                                <PolarRadiusAxis
-                                                    angle={30}
-                                                    domain={[0, 30]}
-                                                    tick={{ fontSize: 10 }}
-                                                />
-                                                <Tooltip />
-                                                <Legend />
-                                                <Radar
-                                                    name="ค่ากลาง"
-                                                    dataKey="reference"
-                                                    stroke="#90CAF9"
-                                                    fill="#90CAF9"
-                                                    fillOpacity={0.3}
-                                                />
-                                                <Radar
-                                                    name={`น้ำหนัก (${weight} kg)`}
-                                                    dataKey="actual"
-                                                    stroke="red"
-                                                    fill="red"
-                                                    fillOpacity={0.5}
-                                                    dot={{ fill: "red", r: 5 }}
-                                                />
-                                            </RadarChart>
-                                        </ResponsiveContainer>
-                                    </div>
+<div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+
+      <ResponsiveContainer width="100%" height={300}>
+        <RadarChart outerRadius="75%" data={chartDataWeight}>
+          <PolarGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+          <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: "#374151" }} />
+          <PolarRadiusAxis domain={[0, 30]} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "white",
+              borderRadius: 8,
+              border: "1px solid #d1d5db",
+              fontSize: 12,
+            }}
+          />
+          <Radar
+            name="ค่ากลางมาตรฐาน"
+            dataKey="reference"
+            stroke="#8B5CF6"
+            strokeWidth={2}
+            fill="#A78BFA"
+            fillOpacity={0.25}
+          />
+          <Radar
+            name={`น้ำหนัก (${weight} กก.)`}
+            dataKey="actual"
+            stroke="#7E22CE"
+            strokeWidth={3}
+            fill="#7E22CE"
+            fillOpacity={0.3}
+            dot={{ fill: "#9333EA", r: 4 }}
+          />
+          <Legend verticalAlign="bottom" height={30} wrapperStyle={{ fontSize: 12 }} />
+        </RadarChart>
+      </ResponsiveContainer>
+</div>
+
                                 </div>
 
                                 <div className="w-full">
@@ -1108,46 +1102,39 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                         </p>
                                     </div>
                                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
-                                        <ResponsiveContainer
-                                            width="100%"
-                                            height={300}
-                                        >
-                                            <RadarChart
-                                                outerRadius="80%"
-                                                data={chartDataWeightForHeight}
-                                            >
-                                                <PolarGrid />
-                                                <PolarAngleAxis
-                                                    dataKey="category"
-                                                    tick={{ fontSize: 12 }}
-                                                />
-                                                <PolarRadiusAxis
-                                                    angle={30}
-                                                    domain={[0, 150]}
-                                                    tick={{ fontSize: 10 }}
-                                                />
-                                                <Tooltip />
-                                                <Legend />
-                                                <Radar
-                                                    name="ค่ากลาง"
-                                                    dataKey="reference"
-                                                    stroke="#90CAF9"
-                                                    fill="#90CAF9"
-                                                    fillOpacity={0.3}
-                                                />
-                                                <Radar
-                                                    name={`น้ำหนัก (${weight} กก)`}
-                                                    dataKey="actual"
-                                                    stroke="#43A047"
-                                                    fill="#43A047"
-                                                    fillOpacity={0.5}
-                                                    dot={{
-                                                        fill: "#43A047",
-                                                        r: 5,
-                                                    }}
-                                                />
-                                            </RadarChart>
-                                        </ResponsiveContainer>
+      <ResponsiveContainer width="100%" height={300}>
+        <RadarChart outerRadius="75%" data={chartDataWeightForHeight}>
+          <PolarGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+          <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: "#374151" }} />
+          <PolarRadiusAxis domain={[0, 35]} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "white",
+              borderRadius: 8,
+              border: "1px solid #d1d5db",
+              fontSize: 12,
+            }}
+          />
+          <Radar
+            name="ค่ากลางมาตรฐาน"
+            dataKey="reference"
+            stroke="#22C55E"
+            strokeWidth={2}
+            fill="#4ADE80"
+            fillOpacity={0.25}
+          />
+          <Radar
+            name={`น้ำหนัก (${weight} กก.)`}
+            dataKey="actual"
+            stroke="#166534"
+            strokeWidth={3}
+            fill="#15803D"
+            fillOpacity={0.3}
+            dot={{ fill: "#22C55E", r: 4 }}
+          />
+          <Legend verticalAlign="bottom" height={30} wrapperStyle={{ fontSize: 12 }} />
+        </RadarChart>
+      </ResponsiveContainer>
                                     </div>
                                 </div>
                             </div>

@@ -24,10 +24,10 @@
         "development_potential": "Develop the potential of children and youth with various activities for meaningful learning"
     },
     "programs": {
-        "room": "{{room}} Room",
+        "room": "{{name}} Room",
         "teacher": "teacher ",
         "age_range": "Age: {{range}}",
-        "participants": "Participants: {{participants}} kids",
+        "participants": "Participants: {{count}} kids",
         "evaluate": "Evaluate"
     },
     "age": {

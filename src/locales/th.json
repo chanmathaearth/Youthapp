@@ -24,10 +24,10 @@
         "development_potential": "พัฒนาศักยภาพเด็กและเยาวชนด้วยกิจกรรมที่หลากหลายเพื่อการเรียนรู้ที่มีความหมาย"
     },
     "programs": {
-        "room": "ห้อง{{room}}",
+        "room": "ห้อง {{name}}",
         "teacher": "คุณครู ",
         "age_range": "อายุ: {{range}}",
-        "participants": "จำนวนเด็ก: {{participants}} คน",
+        "participants": "จำนวนเด็ก: {{count}} คน",
         "evaluate": "ประเมิน"
     },
     "age": {

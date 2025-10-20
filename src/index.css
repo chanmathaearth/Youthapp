@@ -13,3 +13,7 @@
 @theme{
   --font-poppins: Poppins, Kanit
 }
+
+html, body {
+  height: 100%;
+}

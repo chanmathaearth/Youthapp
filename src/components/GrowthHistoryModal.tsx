@@ -1,18 +1,23 @@
 import React from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { format } from "date-fns";
+import { dobFormat } from "../utils/dobFormat";
 
 interface GrowthRecord {
   round: number;
-  date: string;
-  weight: number;                // กก.
-  height: number;                // ซม.
-  weightStatus: string;          // สถานะน้ำหนักตามอายุ
-  heightStatus: string;          // สถานะส่วนสูงตามอายุ
-  weightForHeightStatus: string; // สถานะน้ำหนักตามส่วนสูง (ผอม/สมส่วน/เกิน/อ้วน)
-  /** ถ้าต้องการเก็บค่าจริงของน้ำหนักตามส่วนสูงให้ใส่เพิ่มได้ */
-  weightForHeight?: number;
-  age: number;                   // เดือน
+  created_at: string;
+  weight_kg: string;
+  height_cm: string;
+  remarks?: string;
+  ageMonth: number;
+  birth: string;
+  gender: "male" | "female";
+  growthResult: {
+    weightResult: string;
+    heightResult: string;
+    weightHeightResult: string;
+  };
 }
 
 interface Props {
@@ -21,6 +26,13 @@ interface Props {
 }
 
 const GrowthHistoryModal: React.FC<Props> = ({ onClose, records }) => {
+  const getStatusColor = (status: string) => {
+    if (status.includes("สมส่วน")) return "success.main";
+    if (status.includes("ผอม")) return "warning.main";
+    if (status.includes("อ้วน")) return "error.main";
+    return "text.primary";
+  };
+
   return (
     <Box
       role="dialog"
@@ -51,9 +63,15 @@ const GrowthHistoryModal: React.FC<Props> = ({ onClose, records }) => {
           position: "relative",
         }}
       >
+        {/* Header */}
         <Typography
           variant="h6"
-          sx={{ textAlign: "center", fontFamily: "Kanit, Poppins", mb: 2 }}
+          sx={{
+            textAlign: "center",
+            fontFamily: "Kanit, Poppins",
+            mb: 2,
+            fontWeight: 600,
+          }}
         >
           ประวัติการเจริญเติบโต
         </Typography>
@@ -66,67 +84,100 @@ const GrowthHistoryModal: React.FC<Props> = ({ onClose, records }) => {
           <CloseIcon />
         </IconButton>
 
-        {records.map((rec, index) => (
-          <Box
-            key={`${rec.round}-${rec.date}-${index}`}
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              p: 2,
-              borderRadius: 2,
-              bgcolor: index % 2 === 0 ? "#f9fafb" : "white",
-            }}
-          >
-            {/* ซ้าย: รอบ/วันที่/อายุ */}
-            <Box>
-              <Typography sx={{ fontFamily: "Kanit, Poppins" }}>
-                ครั้งที่ {rec.round}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontFamily: "Kanit, Poppins" }}
-              >
-                {rec.date}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontFamily: "Kanit, Poppins" }}
-              >
-                อายุ {rec.age} เดือน
-              </Typography>
-            </Box>
-
-            {/* ขวา: ค่าหลัก + สถานะ */}
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
-              {/* บรรทัดบน: น้ำหนัก | ส่วนสูง | น้ำหนักตามส่วนสูง(สถานะ) */}
-              <Box sx={{ fontWeight: 600, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-                <Typography sx={{ color: "primary.main", fontFamily: "Kanit, Poppins" }}>
-                  {rec.weight} กก.
+        {/* รายการ */}
+        {records?.length ? (
+          records.map((rec, index) => (
+            <Box
+              key={`${rec.round}-${rec.created_at}-${index}`}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: 2,
+                borderRadius: 2,
+                bgcolor: index % 2 === 0 ? "#f9fafb" : "white",
+              }}
+            >
+              {/* ฝั่งซ้าย */}
+              <Box>
+                <Typography sx={{ fontFamily: "Kanit, Poppins" }}>
+                  ครั้งที่ {rec.round ?? index + 1}
                 </Typography>
-                <Typography sx={{ mx: 1, color: "#9ca3af" }}>|</Typography>
-                <Typography sx={{ color: "success.main", fontFamily: "Kanit, Poppins" }}>
-                  {rec.height} ซม.
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontFamily: "Kanit, Poppins" }}
+                >
+                  {format(new Date(rec.created_at), "dd/MM/yyyy")}
                 </Typography>
-                <Typography sx={{ mx: 1, color: "#9ca3af" }}>|</Typography>
-                <Typography sx={{ color: "#7c3aed", fontFamily: "Kanit, Poppins" }}>
-                  {rec.weightForHeightStatus}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontFamily: "Kanit, Poppins" }}
+                >
+                  อายุ {dobFormat(rec.birth)}
                 </Typography>
               </Box>
 
-              {/* บรรทัดล่าง: สถานะ น้ำหนัก | ส่วนสูง (สีเทา) */}
-              <Typography
-                fontSize={14}
-                color="text.secondary"
-                sx={{ fontFamily: "Kanit, Poppins" }}
+              {/* ฝั่งขวา */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                  textAlign: "right",
+                }}
               >
-                {rec.weightStatus} | {rec.heightStatus}
-              </Typography>
+                {/* น้ำหนัก | ส่วนสูง | ผลน้ำหนักตามส่วนสูง */}
+                <Box
+                  sx={{
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ color: "primary.main", fontFamily: "Kanit, Poppins" }}>
+                    {rec.weight_kg} กก.
+                  </Typography>
+                  <Typography sx={{ mx: 1, color: "#9ca3af" }}>|</Typography>
+                  <Typography sx={{ color: "success.main", fontFamily: "Kanit, Poppins" }}>
+                    {rec.height_cm} ซม.
+                  </Typography>
+                  <Typography sx={{ mx: 1, color: "#9ca3af" }}>|</Typography>
+                  <Typography
+                    sx={{
+                      color: getStatusColor(rec.growthResult.weightHeightResult),
+                      fontFamily: "Kanit, Poppins",
+                    }}
+                  >
+                    {rec.growthResult.weightHeightResult}
+                  </Typography>
+                </Box>
+
+                {/* สถานะย่อย */}
+                <Typography
+                  fontSize={14}
+                  color="text.secondary"
+                  sx={{ fontFamily: "Kanit, Poppins" }}
+                >
+                  {rec.growthResult.weightResult} | {rec.growthResult.heightResult}
+                </Typography>
+              </Box>
             </Box>
-          </Box>
-        ))}
+          ))
+        ) : (
+          <Typography
+            sx={{
+              textAlign: "center",
+              mt: 4,
+              color: "text.secondary",
+              fontFamily: "Kanit, Poppins",
+            }}
+          >
+            ยังไม่มีข้อมูลการบันทึกการเจริญเติบโต
+          </Typography>
+        )}
       </Box>
     </Box>
   );

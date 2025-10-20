@@ -3,6 +3,7 @@ import LanguageToggle from "./languageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { getRole } from "../utils/authen";
 
 const Topbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +13,9 @@ const Topbar = () => {
     const onToggleMenu = () => {
         setIsOpen(!isOpen);
     };
+
+    const role = getRole();
+
     const handleLogout = () => {
         Swal.fire({
             icon: "success",
@@ -24,15 +28,7 @@ const Topbar = () => {
         // clear token
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        localStorage.removeItem("isLoggedIn");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("role");
-        localStorage.removeItem("token");
-                localStorage.removeItem("user_ID");
-
-                        localStorage.removeItem("username");
-
-
+   
         // redirect
         setTimeout(() => navigate("/login"), 1600);
 
@@ -50,7 +46,7 @@ const Topbar = () => {
                 <div
                     className={`${
                         isOpen ? "flex" : "hidden"
-                    } md:flex flex-col md:flex-row fixed md:static top-full left-0 w-full h-[20vh] md:p-6 md:gap-4 md:w-auto md:h-auto bg-white md:bg-transparent z-40 items-center justify-center px-5 py-5 transition-all duration-300 ease-in-out`}
+                    } md:flex flex-col md:flex-row fixed md:static top-full left-0 w-full h-[25vh] md:p-6 md:gap-4 md:w-auto md:h-auto bg-white md:bg-transparent z-40 items-center justify-center px-5 py-5 transition-all duration-300 ease-in-out`}
                 >
                     <ul className="flex flex-col md:flex-row items-center gap-6 md:gap-10 text-gray-700 text-center w-full">
                         <li className="hover:text-blue-500 transition-all">
@@ -61,14 +57,15 @@ const Topbar = () => {
                                 {t("topbar.homepage")}
                             </button>
                         </li>
-                        <li className="hover:text-blue-500 transition-all">
+                        { role == "admin" && (<li className="hover:text-blue-500 transition-all">
                             <button
                                 className="font-medium text-xl"
-                                onClick={() => navigate("/dashboard")}
+                                onClick={() => navigate("/admin/dashboard")}
                             >
                                 {t("topbar.dashboard")}
                             </button>
-                        </li>
+                        </li>)}
+                        
                         {/* Mobile only logout */}
                         <li className="md:hidden">
                             <button
@@ -90,7 +87,8 @@ const Topbar = () => {
                         {t("topbar.signout")}
                     </button>
                     <LanguageToggle />
-                    <button onClick={() => navigate("/setting")}>
+                    { role === "admin" && (
+                        <button onClick={() => navigate("/admin/settings")}>
                         <svg
                             className="w-8 h-8 text-gray-800 hover:text-blue-500"
                             aria-hidden="true"
@@ -116,6 +114,9 @@ const Topbar = () => {
                             />
                         </svg>
                     </button>
+                ) 
+                }
+                    
 
                     {/* Hamburger menu */}
                     <div

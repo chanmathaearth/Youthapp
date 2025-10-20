@@ -47,39 +47,34 @@ const getStatusIcon = (status: string) => {
 
 const getStatusBadge = (status: string) => {
     const labels: { [key: string]: string } = {
-      success: "สำเร็จ",
-      hold: "รอประเมิน",
-      default: "ยังไม่ได้ประเมิน",
+        success: "สำเร็จ",
+        hold: "รอประเมิน",
+        default: "ยังไม่ได้ประเมิน",
     };
-  
+
     const colors: { [key: string]: "success" | "warning" | "default" } = {
-      success: "success",
-      hold: "warning",
-      default: "default",
+        success: "success",
+        hold: "warning",
+        default: "default",
     };
-  
+
     return (
-      <Chip
-        sx={{
-          fontFamily: "Poppins, Kanit",
-          fontSize: "1rem",
-          fontWeight: 600,
-          padding: "4%",
-          overflow: "auto",
-          width: {
-            xs: "80%",
-            sm: "80%",
-            md: "80%",
-            lg: "50%",
-        },
-        }}
-        label={labels[status] || labels.default}
-        color={colors[status] || colors.default}
-        size="medium"
-      />
+        <Chip
+            sx={{
+                fontFamily: "Poppins, Kanit",
+                fontSize: "1rem",
+                fontWeight: 600,
+                px: 2,
+                py: 1,
+                minWidth: 120, // หรือกำหนดตามต้องการ
+                whiteSpace: "nowrap",
+            }}
+            label={labels[status] || labels.default}
+            color={colors[status] || colors.default}
+            size="medium"
+        />
     );
-  };
-  
+};
 
 const Table_: React.FC<Props> = ({ childrenList }) => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -101,7 +96,6 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                     >
                         <Typography
                             fontSize="1.25rem"
-                            fontWeight={600}
                             fontFamily="Poppins, Kanit"
                             whiteSpace={"nowrap"}
                         >
@@ -137,11 +131,12 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                     sx={{
                                         fontFamily: "Poppins, Kanit",
                                         fontSize: "1.15rem",
-                                        fontWeight: 600,
-                                        whiteSpace: "nowrap"
+                                        whiteSpace: "nowrap",
                                     }}
                                     align={
-                                        label === "การดำเนินการ" || label === "สถานะ" || label === "ครั้งที่ประเมิน"
+                                        label === "การดำเนินการ" ||
+                                        label === "สถานะ" ||
+                                        label === "ครั้งที่ประเมิน"
                                             ? "center"
                                             : "left"
                                     }
@@ -165,8 +160,7 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                             sx={{
                                                 fontFamily: "Poppins, Kanit",
                                                 fontSize: "1.1rem",
-                                                whiteSpace: "nowrap"
-
+                                                whiteSpace: "nowrap",
                                             }}
                                         >
                                             {child.name}
@@ -177,15 +171,14 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                     sx={{
                                         fontFamily: "Poppins, Kanit",
                                         fontSize: "1.1rem",
-                                        whiteSpace: "nowrap"
-
+                                        whiteSpace: "nowrap",
                                     }}
                                 >
                                     {child.age}
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex justify-center">
-                                    {getStatusBadge(child.status)}
+                                        {getStatusBadge(child.status)}
                                     </div>
                                 </TableCell>
                                 <TableCell>
@@ -194,7 +187,7 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                             display: "flex",
                                             fontFamily: "Poppins, Kanit",
                                             fontSize: "1.1rem",
-                                            justifyContent: "center"
+                                            justifyContent: "center",
                                         }}
                                     >
                                         ครั้งที่ {child.round}
@@ -207,38 +200,53 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                         justifyContent="center"
                                     >
                                         <div className="flex flex-col gap-2 mr-2">
-                                        <Button
-                                            onClick={() => navigate(`/evaluation/${child.room}/form/${child.id}`)}
-                                            variant="contained"
-                                            color="secondary"
-                                            size="small"
-                                            sx={{
-                                                fontFamily: "Poppins, Kanit",
-                                                fontSize: "1.1rem",
-                                                borderRadius: 3,
-                                                whiteSpace: "nowrap",
-                                            }}
-                                        ><Brain className="mr-2 w-5"/>
-                                            ประเมินพัฒนาการ
-
-                                        </Button>
-                                        <Button
-                                            onClick={() => navigate(`/evaluation/${child.room}/measureform/${child.id}`)}
-                                            variant="contained"
-                                            size="small"
-                                            sx={{
-                                                fontFamily: "Poppins, Kanit",
-                                                fontSize: "1.1rem",
-                                                borderRadius: 3,
-                                                whiteSpace: "nowrap",
-                                            }}
-                                        >
-                                            <Scale className="mr-2 w-5"/>
-                                            วัดน้ำหนัก-ส่วนสูง
-                                        </Button>
+                                            <Button
+                                                onClick={() =>
+                                                    navigate(
+                                                    `/rooms/${child.room.toLowerCase()}/evaluations/${child.id}/assessment`
+                                                    )
+                                                    
+                                                }
+                                                variant="contained"
+                                                color="secondary"
+                                                size="small"
+                                                sx={{
+                                                    fontFamily:
+                                                        "Poppins, Kanit",
+                                                    fontSize: "1.1rem",
+                                                    borderRadius: 3,
+                                                    whiteSpace: "nowrap",
+                                                }}
+                                            >
+                                                <Brain className="mr-2 w-5" />
+                                                ประเมินพัฒนาการ
+                                            </Button>
+                                            <Button
+                                                onClick={() =>
+                                                    navigate(
+                                                    `/rooms/${child.room.toLowerCase()}/evaluations/${child.id}/growth`
+                                                    )
+                                                }
+                                                variant="contained"
+                                                size="small"
+                                                sx={{
+                                                    fontFamily:
+                                                        "Poppins, Kanit",
+                                                    fontSize: "1.1rem",
+                                                    borderRadius: 3,
+                                                    whiteSpace: "nowrap",
+                                                }}
+                                            >
+                                                <Scale className="mr-2 w-5" />
+                                                วัดน้ำหนัก-ส่วนสูง
+                                            </Button>
                                         </div>
                                         <Button
-                                            onClick={() => navigate(`/evaluation/${child.room}/result/${child.id}`)}
+                                            onClick={() =>
+                                                navigate(
+                                                    `/rooms/${child.room.toLowerCase()}/evaluations/${child.id}/result`
+                                                )
+                                            }
                                             variant="outlined"
                                             size="small"
                                             sx={{
@@ -246,7 +254,10 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                                 fontSize: "1.1rem",
                                                 borderRadius: 3,
                                                 whiteSpace: "nowrap",
-                                                display: child.status !== "success" ? "none" : "inline-block", 
+                                                display:
+                                                    child.status !== "success"
+                                                        ? "none"
+                                                        : "inline-block",
                                             }}
                                         >
                                             ดูผล

@@ -1,26 +1,18 @@
-import Card from "../../components/Card";
+import ProgramCard from "../../components/ProgramCard";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { getAll } from "../../helpers"
+import { useRooms } from "../../hooks/useRoom"
+import type { Room } from "../../interface/room";
 
 const HomePage = () => {
-    const { t } = useTranslation();
 
-    const { data: programs } = useQuery({
-        queryKey: ["programs"],
-        queryFn: async () => {
-            const response = await getAll("room/api/v1/room");
-            console.log(response)
-            return response;
-        },
-        initialData: [],
-    });
+    const { t } = useTranslation();
+    const { data: programs } = useRooms(); 
+
 
     return (
-        <div className="relative w-screen h-screen overflow-hidden bg-gradient-to-r from-blue-50 via-sky-50 to-cyan-50">
+        <div className="relative w-screen h-screen bg-gradient-to-r from-blue-50 via-sky-50 to-cyan-50">
             <div className="relative z-10 flex items-center justify-center h-auto w-full px-4">
-                <main className="relative z-10 container mx-auto px-4 py-12 overflow-y-auto h-[100vh]">
-                    {/* Hero Section */}
+                <main className="relative z-10 container mx-auto px-4 py-12 h-[100vh]">
                     <div className="text-center mb-16">
                         <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
                             {t("home.tracking_system")}
@@ -36,21 +28,19 @@ const HomePage = () => {
                         </p>
                     </div>
 
-                    {/* Programs Grid */}
-                    {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {programs.map((program) => (
-                            <Card
-                                key={program.id}
-                                room={program.room}
-                                teacher={program.teacher}
-                                minAgeInMonths={program.minAgeInMonths}
-                                maxAgeInMonths={program.maxAgeInMonths}
-                                participants={program.participants.toString()}
-                                rating={program.rating}
-                                image={program.image}
-                            />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {programs.map((program: Room) => (
+                            <ProgramCard
+                                id={program.id}
+                                name={program.name}
+                                teachers={program.teachers}
+                                minAge={program.min_age}
+                                maxAge={program.max_age}         
+                                childrenCount={program.children_count}
+                                // image={program.image}
+                                />
                         ))}
-                    </div> */}
+                    </div>
                 </main>
             </div>
         </div>

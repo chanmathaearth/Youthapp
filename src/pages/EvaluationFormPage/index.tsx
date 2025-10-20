@@ -1,62 +1,60 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState } from "react";
 import { ArrowLeft, Save, CheckCircle2, Circle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { Box } from "@mui/material";
+import { useStudentById } from "../../hooks/useStudent";
+import { dobFormat } from "../../utils/dobFormat";
+import { useSubmitQuestionnaire } from "../../hooks/useSubmitQuestionnaire";
 
-type Item = {
-    question: string;
-    category: string;
-    short: string;
+type QuestionnaireItem = {
+  id: number;
+  title: string;
+  type?: {
+    name?: string;
+    description?: string;
+  };
+  equipment?: string;
 };
-type ItemWithIdx = Item & { idx: number };
-
 export default function EvaluationFormPage() {
     const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
+    const { childId, roomId } = useParams<{ roomId: string; childId: string }>();
+    const {
+        data: childInfo,
+        isLoading,
+        isError,
+    } = useStudentById(Number(childId));
+    const { mutate: submitQuestionnaire } = useSubmitQuestionnaire();
 
-    const childInfo = {
-        name: "น้องแอม",
-        age: "2 ปี 6 เดือน",
-        evaluationRound: 4,
-    };
+    const navigate = useNavigate();
 
-    const items: Item[] = [
-        {
-            question: "หันหัวไปซ้ายขวาได้",
-            category: "ด้านการเคลื่อนไหว Gross Motor (GM)",
-            short: "GM",
-        },
-        {
-            question: "หยิบของชิ้นเล็กๆ ได้ด้วยนิ้วโป้งและนิ้วชี้",
-            category: "ด้านการใช้กล้ามเนื้อมัดเล็กและสติปัญญา Fine Motor (FM)",
-            short: "FM",
-        },
-        {
-            question: "หันไปหาผู้พูดเมื่อเรียกชื่อ",
-            category: "ด้านการเข้าใจภาษา Receptive Language (RL)",
-            short: "RL",
-        },
-        {
-            question: "ส่งเสียงอื่นๆ ได้",
-            category: "ด้านการใช้ภาษา Expressive Language (EL)",
-            short: "EL",
-        },
-        {
-            question: "มองจ้องหน้าได้ 1-2 วินาที",
-            category: "ด้านการช่วยเหลือตัวเองและสังคม Personal and Social (PS)",
-            short: "PS",
-        },
-    ];
+    if (isLoading)
+        return <p className="text-center mt-10">กำลังโหลดข้อมูล...</p>;
+    if (isError || !childInfo)
+        return (
+            <p className="text-center mt-10 text-red-500">
+                ไม่สามารถโหลดข้อมูลได้
+            </p>
+        );
 
-    // --- Grouped by short ---
-    const grouped: Record<string, ItemWithIdx[]> = items.reduce(
-        (acc, item, idx) => {
-            if (!acc[item.short]) acc[item.short] = [];
-            acc[item.short].push({ ...item, idx });
+    const items = (childInfo.questionnaire?.items ?? []).map((item: QuestionnaireItem) => ({
+  id: item.id,
+  question: item.title,
+  category: item.type?.description ?? "ไม่ระบุหมวด",
+  short: item.type?.name ?? "",
+  equipment: item.equipment ?? "",
+}));
+
+    const grouped: Record<string, (typeof items)[number][]> = items.reduce(
+        (acc: { [x: string]: any[]; }, item: { category: string | number; }, idx: any) => {
+            if (!acc[item.category]) acc[item.category] = [];
+            acc[item.category].push({ ...item, idx });
             return acc;
         },
-        {} as Record<string, ItemWithIdx[]>
+        {} as Record<string, (typeof items)[number][]>
     );
 
-    // --- Handlers ---
     const toggleItem = (index: number) => {
         setCheckedItems((prev) => {
             const newChecked = new Set(prev);
@@ -65,23 +63,42 @@ export default function EvaluationFormPage() {
             return newChecked;
         });
     };
-
+    
     const handleSave = () => {
-        alert(`บันทึกแล้ว! ประเมิน ${checkedItems.size}/${items.length} ข้อ`);
+        if (!childInfo?.questionnaire || !childInfo?.id) {
+            alert("ไม่พบข้อมูลแบบประเมินหรือข้อมูลเด็ก");
+            return;
+        }
+
+        const payload = {
+            children: childInfo.id,
+            questionnaire: childInfo.questionnaire.id,
+            answers: childInfo.questionnaire.items.map(
+                (item: any, idx: number) => ({
+                    questionnaire_item: item.id,
+                    answer: checkedItems.has(idx),
+                })
+            ),
+        };
+          submitQuestionnaire(payload, {
+    onSuccess: () => {
+      alert("บันทึกแบบประเมินสำเร็จ!");
+      // ✅ ใช้ roomName จาก URL
+      navigate(`/rooms/${roomId}/evaluations/${childId}/result`);
+    },
+  });
     };
 
-    const selectAll = () => setCheckedItems(new Set(items.map((_, i) => i)));
+    const selectAll = () => setCheckedItems(new Set(items.map((_: any, i: any) => i)));
     const clearAll = () => setCheckedItems(new Set());
-
-    const navigate = useNavigate();
 
     // --- UI ---
     return (
-        <div className="min-h-screen bg-gradient-to-r from-blue-50 via-sky-50 to bg-cyan-50 font-poppins">
+        <Box className="min-h-screen bg-gradient-to-r from-blue-50 via-sky-50 to bg-cyan-50 font-poppins">
             {/* Header */}
-            <div className="shadow-sm p-4 sticky top-0 z-10 bg-white/80 border-b border-slate-200">
-                <div className="flex items-center justify-between max-w-4xl mx-auto ">
-                    <div className="flex items-center space-x-4">
+            <Box className="shadow-sm p-4 sticky top-0 z-10 bg-white/80 border-b border-slate-200">
+                <Box className="flex items-center justify-between max-w-4xl mx-auto ">
+                    <Box className="flex items-center space-x-4">
                         <button
                             className="flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-black rounded hover:bg-gray-100 transition"
                             onClick={() => navigate(-1)}
@@ -90,22 +107,23 @@ export default function EvaluationFormPage() {
                             <ArrowLeft className="w-4 h-4 mr-1" />
                             กลับ
                         </button>
-                        <div>
-                            <h1 className="text-xl font-bold">
-                                {childInfo.name}
+                        <Box>
+                            <h1 className="text-lg font-medium">
+                                {childInfo?.nickname}
                             </h1>
                             <p className="text-sm text-gray-500">
-                                อายุ {childInfo.age}
+                                อายุ {dobFormat(childInfo?.birth)}
                             </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <div className="text-right hidden md:block">
-                            <div className="text-2xl font-bold text-green-600">
+                        </Box>
+                    </Box>
+
+                    <Box className="flex items-center space-x-4">
+                        <Box className="text-right hidden md:block">
+                            <Box className="text-2xl font-bold text-green-600">
                                 {checkedItems.size}/{items.length}
-                            </div>
-                            <div className="text-xs text-gray-500">ข้อ</div>
-                        </div>
+                            </Box>
+                            <Box className="text-xs text-gray-500">ข้อ</Box>
+                        </Box>
                         <button
                             onClick={handleSave}
                             className="flex items-center bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg text-sm font-medium shadow transition"
@@ -114,13 +132,14 @@ export default function EvaluationFormPage() {
                             <Save className="w-4 h-4 mr-2" />
                             บันทึก
                         </button>
-                    </div>
-                </div>
-            </div>
+                    </Box>
+                </Box>
+            </Box>
 
-            {/* ปุ่มลัด */}
-            <div className="p-4 max-w-4xl mx-auto">
-                <div className="flex justify-center space-x-4 mb-6">
+            {/* Content Section */}
+            <Box className="p-4 max-w-4xl mx-auto">
+                {/* ปุ่มลัด */}
+                <Box className="flex justify-center space-x-4 mb-6">
                     <button
                         onClick={selectAll}
                         className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded hover:bg-green-100 transition"
@@ -135,124 +154,123 @@ export default function EvaluationFormPage() {
                     >
                         ✗ ล้างทั้งหมด
                     </button>
-                </div>
+                </Box>
 
-                {/* Sectioned List */}
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 ">
-                    {Object.entries(grouped).map(([short, group]) => (
-                        <div key={short} className="mb-5">
-                            {/* Section Header with gradient */}
-                            <div
-                                className={`
-                flex items-center gap-2
-                px-4 py-1 rounded-t-lg w-full border-gray-200
-                shadow
-                ${
-                    short === "GM"
-                        ? "bg-gradient-to-r from-sky-500 to-sky-200"
-                        : short === "FM"
-                        ? "bg-gradient-to-r from-sky-500 to-sky-200"
-                        : short === "RL"
-                        ? "bg-gradient-to-r from-sky-500 to-sky-200"
-                        : short === "EL"
-                        ? "bg-gradient-to-r from-sky-500 to-sky-200"
-                        : short === "PS"
-                        ? "bg-gradient-to-r from-sky-500 to-sky-200"
-                        : "bg-gradient-to-r from-sky-500 to-sky-200"
-                }
-              `}
-                            >
-                                <span className="text-white text-lg font-medium drop-shadow">
-                                    {group[0].category}
-                                </span>
-                            </div>
-                            {/* รายการในหมวด */}
-                            <div className="grid">
-                                {group.map(({ question, idx }, j) => {
-                                    const isLast = j === group.length - 1;
-                                    const onlyOne = group.length === 1;
-
-                                    const rounded = onlyOne
-                                        ? "rounded-b-lg"
-                                        : isLast
-                                        ? "rounded-b-lg"
-                                        : "";
-
-                                    return (
-                                        <div
-                                            key={idx}
-                                            onClick={() => toggleItem(idx)}
-                                            className={`
-          flex items-center space-x-4 p-5 cursor-pointer transition-all hover:shadow-md
-          ${
-              checkedItems.has(idx)
-                  ? "bg-green-100 border-2 border-green-300"
-                  : "bg-white border-2 border-gray-200 hover:border-gray-300"
-          }
-          ${rounded}
-        `}
-                                        >
-                                            <div className="flex-shrink-0">
-                                                {checkedItems.has(idx) ? (
-                                                    <CheckCircle2 className="w-8 h-8 text-green-600" />
-                                                ) : (
-                                                    <Circle className="w-8 h-8 text-gray-400" />
-                                                )}
-                                            </div>
-                                            <div className="flex-1 items-center">
-                                                <div
-                                                    className={`text-lg ${
-                                                        checkedItems.has(idx)
-                                                            ? "font-semibold text-green-700"
-                                                            : "text-gray-700"
-                                                    }`}
-                                                >
-                                                    {question}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* สรุปผล */}
-                <div className="mt-8 text-center">
-                    <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-2xl p-6 mb-6">
-                        <h3 className="text-xl font-bold mb-2">ผลการประเมิน</h3>
-                        <div
-                            className={`text-4xl font-bold mb-2 ${
-                                checkedItems.size === items.length
-                                    ? "text-white"
-                                    : "text-white"
-                            }`}
-                        >
-                            {checkedItems.size === items.length
-                                ? "ผ่าน"
-                                : "ไม่ผ่าน"}
-                        </div>
-                        <p className="text-blue-100">
-                            ทำได้ {checkedItems.size} จาก {items.length} ข้อ (
-                            {Math.round(
-                                (checkedItems.size / items.length) * 100
-                            )}
-                            %)
+                {/* ✅ ถ้าไม่มี questionnaire */}
+                {!childInfo.questionnaire || items.length === 0 ? (
+                    <Box className="flex flex-col items-center justify-center text-center py-20 bg-white border border-gray-200 rounded-xl shadow-sm">
+                        <p className="text-gray-500 text-2xl font-medium mb-2">
+                            ไม่พบแบบประเมิน
                         </p>
-                    </div>
-                    <div className="flex justify-center">
+                        <p className="text-gray-400 text-lg">
+                            เด็กคนนี้ยังไม่มีแบบประเมินพัฒนาการที่สอดคล้องกับช่วงอายุ
+                        </p>
                         <button
-                            onClick={handleSave}
-                            className="flex items-center bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-xl font-bold rounded-2xl shadow-lg transition"
-                            type="button"
+                            onClick={() => navigate(-1)}
+                            className="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow transition"
                         >
-                            <Save className="w-6 h-6 mr-3" />
-                            บันทึกการประเมิน
+                            กลับไปหน้าหลัก
                         </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </Box>
+                ) : (
+                    <>
+                        {/* แสดงรายการคำถาม */}
+                        <Box className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 ">
+                            {Object.entries(grouped).map(
+                                ([category, group]) => (
+                                    <Box key={category} className="mb-5">
+                                        {/* Header */}
+                                        <Box className="px-4 py-2 rounded-t-lg bg-gradient-to-r from-sky-500 to-sky-300 text-white shadow">
+                                            {category} {group[0]?.short}
+                                        </Box>
+
+                                        {group.map(({ question, idx }, j) => {
+                                            const isLast =
+                                                j === group.length - 1;
+                                            const rounded = isLast
+                                                ? "rounded-b-lg"
+                                                : "";
+
+                                            return (
+                                                <Box
+                                                    key={idx}
+                                                    onClick={() =>
+                                                        toggleItem(idx)
+                                                    }
+                                                    className={`
+                          p-4 cursor-pointer border-b border-gray-200 hover:bg-gray-50 transition-all
+                          ${
+                              checkedItems.has(idx)
+                                  ? "bg-green-100 border-l-4 border-green-400"
+                                  : "bg-white"
+                          }
+                          ${rounded}
+                        `}
+                                                >
+                                                    <Box className="flex items-start gap-4">
+                                                        {checkedItems.has(
+                                                            idx
+                                                        ) ? (
+                                                            <CheckCircle2 className="w-6 h-6 text-green-600 mt-1" />
+                                                        ) : (
+                                                            <Circle className="w-6 h-6 text-gray-400 mt-1" />
+                                                        )}
+                                                        <Box>
+                                                            <p
+                                                                className={`font-medium ${
+                                                                    checkedItems.has(
+                                                                        idx
+                                                                    )
+                                                                        ? "text-green-700"
+                                                                        : "text-gray-800"
+                                                                }`}
+                                                            >
+                                                                {question}
+                                                            </p>
+                                                        </Box>
+                                                    </Box>
+                                                </Box>
+                                            );
+                                        })}
+                                    </Box>
+                                )
+                            )}
+                        </Box>
+
+                        {/* สรุปผล */}
+                        <Box className="mt-8 text-center">
+                            <Box className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-2xl p-6 mb-6">
+                                <h3 className="text-xl font-bold mb-2">
+                                    ผลการประเมิน
+                                </h3>
+                                <Box className="text-4xl font-bold mb-2">
+                                    {checkedItems.size === items.length
+                                        ? "ผ่าน"
+                                        : "ไม่ผ่าน"}
+                                </Box>
+                                <p className="text-blue-100">
+                                    ทำได้ {checkedItems.size} จาก {items.length}{" "}
+                                    ข้อ (
+                                    {Math.round(
+                                        (checkedItems.size / items.length) * 100
+                                    )}
+                                    %)
+                                </p>
+                            </Box>
+                            <Box className="flex justify-center">
+                                <button
+                                    onClick={handleSave}
+                                    className="flex items-center bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-xl font-bold rounded-2xl shadow-lg transition"
+                                    type="button"
+                                >
+                                    <Save className="w-6 h-6 mr-3" />
+                                    บันทึกการประเมิน
+                                </button>
+                            </Box>
+                        </Box>
+                    </>
+                )}
+            </Box>
+        </Box>
     );
 }

@@ -32,7 +32,6 @@ const Topbar = () => {
         // redirect
         setTimeout(() => navigate("/login"), 1600);
 
-        console.log("logout clicked");
     };
 
     return (
@@ -87,8 +86,7 @@ const Topbar = () => {
                         {t("topbar.signout")}
                     </button>
                     <LanguageToggle />
-                    { role === "admin" && (
-                        <button onClick={() => navigate("/admin/settings")}>
+                        <button onClick={() => navigate("/settings")}>
                         <svg
                             className="w-8 h-8 text-gray-800 hover:text-blue-500"
                             aria-hidden="true"
@@ -114,8 +112,6 @@ const Topbar = () => {
                             />
                         </svg>
                     </button>
-                ) 
-                }
                     
 
                     {/* Hamburger menu */}

@@ -82,9 +82,7 @@ export default function EvaluationFormPage() {
         };
           submitQuestionnaire(payload, {
     onSuccess: () => {
-      alert("บันทึกแบบประเมินสำเร็จ!");
-      // ✅ ใช้ roomName จาก URL
-      navigate(`/rooms/${roomId}/evaluations/${childId}/result`);
+      navigate(`/rooms/${roomId}/evaluations`);
     },
   });
     };

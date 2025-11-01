@@ -70,6 +70,7 @@ import { validateForm } from "../../utils/validate";
 import type { User } from "../../interface/user";
 import type { Teacher } from "../../interface/teacher";
 import type { Student } from "../../interface/student";
+import { getRole } from "../../utils/authen";
 
 type Role = "admin" | "teacher";
 
@@ -225,6 +226,8 @@ const SettingsPage = () => {
     const [UpdateUser, setUpdateUser] = useState<User | null>(null);
     const [searchName, setSearchName] = useState("");
     const [selectedRoom, setSelectedRoom] = useState("");
+    const role = getRole();
+    
 
     // const [editImageFile, setEditImageFile] = useState<File | null>(null);
     // const [editImagePreview, setEditImagePreview] = useState<string | null>(
@@ -308,7 +311,6 @@ const SettingsPage = () => {
 
     const openStudentEdit = (student: Student) => {
         setEditStudentId(student.id);
-        console.log(student.id);
         setEditStudent(student);
         setIsEditStudentOpen(true);
     };
@@ -416,11 +418,11 @@ const SettingsPage = () => {
     const { data: rooms = [] } = useRooms();
     const { data: editRoomData } = useRoomById(editRoomId ?? undefined);
     const { data: StudentData } = useStudents();
+    console.log(StudentData)
     const { data: editStudentData } = useStudentById(
         editStudentId ?? undefined
     );
 
-    console.log(editStudentData);
 
     //useEffect Section
 
@@ -500,6 +502,11 @@ const SettingsPage = () => {
     const selectedTeachers = teacherOptions.filter((opt) =>
         editRoom?.staff_ids?.includes(opt.value)
     );
+      useEffect(() => {
+    if (role === "teacher") {
+      setActiveTab(2);
+    }
+  }, [role]);
 
     return (
         <Box className="min-h-screen bg-gradient-to-br from-blue-50 to-sky-50">
@@ -515,14 +522,19 @@ const SettingsPage = () => {
                             allowScrollButtonsMobile
                             className="min-h-[72px]"
                         >
+                            
                             <Tab
                                 icon={<Users size={20} />}
+                                  sx={{ display: role === "teacher" ? "none" : "flex" }}
+
                                 iconPosition="start"
                                 label="จัดการผู้ใช้"
                                 className="normal-case text-[16px] font-semibold min-h-[72px] px-6 text-gray-700 gap-2 font-poppins"
                             />
                             <Tab
                                 icon={<School size={20} />}
+                                  sx={{ display: role === "teacher" ? "none" : "flex" }}
+
                                 iconPosition="start"
                                 label="จัดการห้องเรียน"
                                 className="normal-case text-[16px] font-semibold min-h-[72px] px-6 text-gray-700 gap-2"
@@ -545,7 +557,7 @@ const SettingsPage = () => {
                     )}
 
                     {addRoomModal && (
-                        <Box className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                        <Box className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
                             <Box className="bg-white rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] w-full max-w-3xl mx-4 sm:mx-6 overflow-hidden">
                                 {/* Header */}
                                 <Box className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
@@ -672,7 +684,7 @@ const SettingsPage = () => {
                                             />
                                         </Box>
 
-                                        <Box className="col-span-full flex items-center gap-4 pt-1">
+                                        {/* <Box className="col-span-full flex items-center gap-4 pt-1">
                                             <span className="text-sm text-gray-600">
                                                 รูปประจำห้อง:
                                             </span>
@@ -706,7 +718,7 @@ const SettingsPage = () => {
                                                     className="w-12 h-12 rounded-xl border-2 border-gray-200 object-cover"
                                                 />
                                             )}
-                                        </Box>
+                                        </Box> */}
                                     </Box>
                                 </Box>
 
@@ -1639,7 +1651,7 @@ const SettingsPage = () => {
                     )}
 
                     {/* Users */}
-                    {activeTab === 0 && (
+                    {activeTab === 0 && role !== "teacher" && (
                         <Box className="p-6">
                             {/* Header */}
                             <Box className="flex items-center justify-between mb-8">
@@ -1858,7 +1870,7 @@ const SettingsPage = () => {
                                                         {isDeleting ? (
                                                             <span className="animate-spin border-2 border-red-600 border-t-transparent rounded-full w-4 h-4"></span>
                                                         ) : (
-                                                            <Trash2 size={16} />
+                                                            <Trash2  size={16} />
                                                         )}
                                                     </button>
                                                 </Box>
@@ -1926,7 +1938,7 @@ const SettingsPage = () => {
                     )}
 
                     {/* Rooms */}
-                    {activeTab === 1 && (
+                    {activeTab === 1 && role !== "teacher" && (
                         <Box className="p-6">
                             <Box className="flex items-center justify-between mb-8">
                                 <Box>
@@ -2259,7 +2271,7 @@ const SettingsPage = () => {
                                                     <button
                                                         onClick={() =>
                                                             navigate(
-                                                                `/evaluation/${student.id}/result`
+                                                            `/rooms/${student.room}/evaluations/${student.id}/result`
                                                             )
                                                         }
                                                         className="w-full sm:w-auto px-3 py-1 border-2 border-green-600 text-green-600 rounded-[10px] hover:bg-blue-50 flex items-center justify-center"
@@ -2283,9 +2295,9 @@ const SettingsPage = () => {
                                                                 student.id
                                                             )
                                                         }
-                                                        className="w-full sm:w-auto px-3 py-2 border-2 rounded-[10px] flex items-center justify-center border-red-600 text-red-600 hover:bg-red-50"
+                                                        className={`w-full sm:w-auto px-3 py-2 border-2 rounded-[10px] flex items-center justify-center border-red-600 text-red-600 hover:bg-red-50 ${role === "teacher" ? "hidden" : "text-gray-700"}`}
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2  size={16} />
                                                     </button>
                                                 </Box>
                                             </Box>

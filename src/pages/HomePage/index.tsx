@@ -8,7 +8,6 @@ const HomePage = () => {
     const { t } = useTranslation();
     const { data: programs } = useRooms(); 
 
-
     return (
         <div className="relative w-screen h-screen bg-gradient-to-r from-blue-50 via-sky-50 to-cyan-50">
             <div className="relative z-10 flex items-center justify-center h-auto w-full px-4">

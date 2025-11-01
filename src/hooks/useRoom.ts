@@ -17,6 +17,25 @@ export const useRooms = () => {
     });
 };
 
+export const useRoomsDashboard = () => {
+  const { data: rooms} = useRooms();
+
+  return useQuery({
+    queryKey: ["rooms-with-children"],
+    enabled: !!rooms && rooms.length > 0,
+    queryFn: async () => {
+      const results = await Promise.all(
+        rooms.map(async (room) => {
+          const children = await getAll(
+            `children/api/v1/children?room=${room.id}`
+          );
+          return { ...room, children };
+        })
+      );
+      return results;
+    },
+  });
+};
 export const useRoomById = (id?: number) => {
     return useQuery({
         queryKey: ["room", id],

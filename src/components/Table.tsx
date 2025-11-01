@@ -27,6 +27,7 @@ export type ChildData = {
     round: number;
     date: string;
     room: string;
+    roomId: number;
 };
 
 // 🔹 Props ที่รับเข้ามา
@@ -203,7 +204,7 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                             <Button
                                                 onClick={() =>
                                                     navigate(
-                                                    `/rooms/${child.room.toLowerCase()}/evaluations/${child.id}/assessment`
+                                                    `/rooms/${child.roomId}/evaluations/${child.id}/assessment`
                                                     )
                                                     
                                                 }
@@ -224,7 +225,7 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                             <Button
                                                 onClick={() =>
                                                     navigate(
-                                                    `/rooms/${child.room.toLowerCase()}/evaluations/${child.id}/growth`
+                                                    `/rooms/${child.roomId}/evaluations/${child.id}/growth`
                                                     )
                                                 }
                                                 variant="contained"

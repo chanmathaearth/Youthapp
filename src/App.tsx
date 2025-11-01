@@ -24,32 +24,51 @@ function AppWrapper() {
         <>
             {!hideTopbar && <Topbar />}
             <Routes>
-                <Route path="/" element={<HomePage />} />
+                {/* ✅ public route */}
                 <Route path="/login" element={<LoginPage />} />
 
+                {/* ✅ protected routes (ต้อง login ก่อนทุกหน้า) */}
                 <Route
-                    path="/rooms/:roomId/evaluations"
-                    element={<EvaluationPage />}
-                />
-                <Route
-                    path="/rooms/:roomId/evaluations/:childId/assessment"
-                    element={<EvaluationFormPage />}
-                />
-                <Route
-                    path="/rooms/:roomId/evaluations/:childId/growth"
-                    element={<WeightheightPage />}
-                />
-                <Route
-                    path="/rooms/:roomId/evaluations/:childId/result"
-                    element={<ResultPage />}
-                />
-                <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                    element={
+                        <ProtectedRoute
+                            allowedRoles={["admin", "teacher"]}
+                        />
+                    }
+                >
+                    <Route path="/" element={<HomePage />} />
                     <Route
-                        path="/admin/dashboard"
-                        element={<DashboardPage />}
+                        path="/rooms/:roomId/evaluations"
+                        element={<EvaluationPage />}
                     />
-                    <Route path="/admin/settings" element={<SettingPage />} />
+                    <Route
+                        path="/rooms/:roomId/evaluations/:childId/assessment"
+                        element={<EvaluationFormPage />}
+                    />
+                    <Route
+                        path="/rooms/:roomId/evaluations/:childId/growth"
+                        element={<WeightheightPage />}
+                    />
+                    <Route
+                        path="/rooms/:roomId/evaluations/:childId/result"
+                        element={<ResultPage />}
+                    />
+                                            <Route
+                            path="/settings"
+                            element={<SettingPage />}
+                        />
+
+                    {/* ✅ admin only */}
+                    <Route
+                        element={<ProtectedRoute allowedRoles={["admin"]} />}
+                    >
+                        <Route
+                            path="/admin/dashboard"
+                            element={<DashboardPage />}
+                        />
+                    </Route>
                 </Route>
+
+                {/* ✅ forbidden */}
                 <Route path="/403" element={<ForbiddenPage />} />
             </Routes>
         </>

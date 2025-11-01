@@ -28,7 +28,6 @@ const EvaluationPage = () => {
 
     const { data: RoomData } = useRoomById(Number(roomId));
 
-    console.log(students)
     const childList: ChildData[] = students.map((s: Student) => {
         return {
             id: s.id,
@@ -41,10 +40,9 @@ const EvaluationPage = () => {
                 ? new Date(s.updated_at).toLocaleDateString("th-TH")
                 : "—",
             room: s.room_name ?? "ไม่ระบุห้อง",
+            roomId: s.room,
         };
     });
-
-    console.log("Test test",childList)
 
     const successCount = childList.filter((s) => s.status === "success").length;
     const holdCount = childList.filter((s) => s.status === "hold").length;

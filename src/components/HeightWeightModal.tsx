@@ -230,6 +230,58 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
         return data;
     };
 
+    const getColor = (category: string): string => {
+        if (!category) return "text-gray-500";
+
+        const normalized = category.trim();
+
+        // 🟩 หมวดปกติหรือสมส่วน
+        if (
+            normalized.includes("น้ำหนักตามเกณฑ์") ||
+            normalized.includes("สูงตามเกณฑ์") ||
+            normalized.includes("สมส่วน") ||
+            normalized.includes("น้ำหนักดี") ||
+            normalized.includes("ปกติ")
+        )
+            return "text-green-600";
+
+        // 🟦 หมวดค่อนข้างดีหรือค่อนข้างสูง
+        if (
+            normalized.includes("ค่อนข้างมาก") ||
+            normalized.includes("ค่อนข้างสูง") ||
+            normalized.includes("ค่อนข้างสมส่วน")
+        )
+            return "text-blue-600";
+
+        // 🟨 หมวดค่าก้ำกึ่งหรือต่ำกว่าปกติเล็กน้อย
+        if (
+            normalized.includes("ค่อนข้างน้อย") ||
+            normalized.includes("ค่อนข้างผอม") ||
+            normalized.includes("เริ่มผอม") ||
+            normalized.includes("น้ำหนักข้างน้อย") ||
+            normalized.includes("ผอม")
+        )
+            return "text-yellow-600";
+
+        if (normalized.includes("เริ่มอ้วน")) return "text-orange-600";
+        if (
+            normalized.includes("อ้วน") ||
+            normalized.includes("น้ำหนักมาก") ||
+            normalized.includes("น้ำหนักค่อนข้างมาก")
+        )
+            return "text-red-600";
+
+        if (
+            normalized.includes("น้ำหนักน้อย") ||
+            normalized.includes("เตี้ย") ||
+            normalized.includes("ต่ำกว่าเกณฑ์")
+        )
+            return "text-purple-600";
+
+        // 🩶 ค่าไม่พบข้อมูล
+        return "text-gray-500";
+    };
+
     return (
         <Box
             sx={{
@@ -355,11 +407,12 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                             {weightCategory})
                                         </span>
                                     </div>
-                                      <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200">
-    <span className="text-pink-700 font-medium">
-      น้ำหนักตามส่วนสูง: {weight} กก. ({weightForHeightCategory})
-    </span>
-  </div>
+                                    <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200">
+                                        <span className="text-pink-700 font-medium">
+                                            น้ำหนักตามส่วนสูง: {weight} กก. (
+                                            {weightForHeightCategory})
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -395,6 +448,64 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                     bottom: 60,
                                                 }}
                                             >
+                                                                                              <Tooltip
+                                                    cursor={{
+                                                        stroke: "#9ca3af",
+                                                        strokeWidth: 1,
+                                                        strokeDasharray: "4 4",
+                                                    }}
+                                                    content={({
+                                                        active,
+                                                        payload,
+                                                    }) => {
+                                                        if (
+                                                            active &&
+                                                            payload &&
+                                                            payload.length
+                                                        ) {
+                                                            return (
+                                                                <div className="bg-white border border-gray-200 rounded-xl shadow-lg px-4 py-3 min-w-[200px]">
+                                                                    <p className="text-gray-500 text-xs mb-2 text-center">
+                                                                        ส่วนสูง:{" "}
+                                                                        <span className="font-medium">
+                                                                            {
+                                                                                height
+                                                                            }{" "}
+                                                                            ซม.
+                                                                        </span>{" "}
+                                                                        •
+                                                                        น้ำหนัก:{" "}
+                                                                        <span className="font-medium">
+                                                                            {
+                                                                                weight
+                                                                            }{" "}
+                                                                            กก.
+                                                                        </span>
+                                                                        
+                                                                    </p>
+
+                                                                    <div className="space-y-1 text-sm">
+                                                                        <p className="flex justify-between">
+                                                                            <span className="text-gray-700">
+                                                                                ส่วนสูงตามอายุ:
+                                                                            </span>
+                                                                            <span
+                                                                                className={`font-semibold ${getColor(
+                                                                                    heightCategory
+                                                                                )}`}
+                                                                            >
+                                                                                {
+                                                                                    heightCategory
+                                                                                }
+                                                                            </span>
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    }}
+                                                />
                                                 <defs>
                                                     <pattern
                                                         id="heightGrid"
@@ -534,6 +645,20 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                     stroke="#ffffff"
                                                     strokeWidth={1}
                                                 />
+                                                <ReferenceLine
+                                                    x={ageInMonths}
+                                                    stroke="#dc2626"
+                                                    strokeWidth={1.5}
+                                                    strokeDasharray="4 2"
+                                                />
+
+                                                {/* ✅ เส้นแนวนอน Y-axis (สีแดง) */}
+                                                <ReferenceLine
+                                                    y={height}
+                                                    stroke="#dc2626"
+                                                    strokeWidth={1.5}
+                                                    strokeDasharray="4 2"
+                                                />
                                             </AreaChart>
                                         </ResponsiveContainer>
                                     </div>
@@ -570,6 +695,64 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                     bottom: 60,
                                                 }}
                                             >
+                                                                                                <Tooltip
+                                                    cursor={{
+                                                        stroke: "#9ca3af",
+                                                        strokeWidth: 1,
+                                                        strokeDasharray: "4 4",
+                                                    }}
+                                                    content={({
+                                                        active,
+                                                        payload,
+                                                    }) => {
+                                                        if (
+                                                            active &&
+                                                            payload &&
+                                                            payload.length
+                                                        ) {
+                                                            return (
+                                                                <div className="bg-white border border-gray-200 rounded-xl shadow-lg px-4 py-3 min-w-[200px]">
+                                                                    <p className="text-gray-500 text-xs mb-2 text-center">
+                                                                        ส่วนสูง:{" "}
+                                                                        <span className="font-medium">
+                                                                            {
+                                                                                height
+                                                                            }{" "}
+                                                                            ซม.
+                                                                        </span>{" "}
+                                                                        •
+                                                                        น้ำหนัก:{" "}
+                                                                        <span className="font-medium">
+                                                                            {
+                                                                                weight
+                                                                            }{" "}
+                                                                            กก.
+                                                                        </span>
+                                                                    </p>
+
+                                                                    <div className="space-y-1 text-sm">
+                                                                        <p className="flex justify-between">
+                                                                            <span className="text-gray-700">
+                                                                                น้ำหนักตามอายุ:
+                                                                            </span>
+                                                                            <span
+                                                                                className={`font-semibold ${getColor(
+                                                                                    weightCategory
+                                                                                )}`}
+                                                                            >
+                                                                                {
+                                                                                    weightCategory
+                                                                                }
+                                                                            </span>
+                                                                        </p>
+
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    }}
+                                                />
                                                 <defs>
                                                     <pattern
                                                         id="weightGrid"
@@ -710,6 +893,20 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                     stroke="#ffffff"
                                                     strokeWidth={1}
                                                 />
+                                                <ReferenceLine
+                                                    x={ageInMonths}
+                                                    stroke="#dc2626"
+                                                    strokeWidth={1.5}
+                                                    strokeDasharray="4 2"
+                                                />
+
+                                                {/* ✅ เส้นแนวนอน Y-axis (สีแดง) */}
+                                                <ReferenceLine
+                                                    y={weight}
+                                                    stroke="#dc2626"
+                                                    strokeWidth={1.5}
+                                                    strokeDasharray="4 2"
+                                                />
                                             </AreaChart>
                                         </ResponsiveContainer>
                                     </div>
@@ -745,6 +942,65 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                     bottom: 60,
                                                 }}
                                             >
+                                                <Tooltip
+                                                    cursor={{
+                                                        stroke: "#9ca3af",
+                                                        strokeWidth: 1,
+                                                        strokeDasharray: "4 4",
+                                                    }}
+                                                    content={({
+                                                        active,
+                                                        payload,
+                                                    }) => {
+                                                        if (
+                                                            active &&
+                                                            payload &&
+                                                            payload.length
+                                                        ) {
+                                                            return (
+                                                                <div className="bg-white border border-gray-200 rounded-xl shadow-lg px-4 py-3 min-w-[200px]">
+                                                                    <p className="text-gray-500 text-xs mb-2 text-center">
+                                                                        ส่วนสูง:{" "}
+                                                                        <span className="font-medium">
+                                                                            {
+                                                                                height
+                                                                            }{" "}
+                                                                            ซม.
+                                                                        </span>{" "}
+                                                                        •
+                                                                        น้ำหนัก:{" "}
+                                                                        <span className="font-medium">
+                                                                            {
+                                                                                weight
+                                                                            }{" "}
+                                                                            กก.
+                                                                        </span>
+                                                                        
+                                                                    </p>
+
+                                                                    <div className="space-y-1 text-sm">
+                                                                        <p className="flex justify-between">
+                                                                            <span className="text-gray-700">
+                                                                                น้ำหนักตามส่วนสูง:
+                                                                            </span>
+                                                                            <span
+                                                                                className={`font-semibold ${getColor(
+                                                                                    weightForHeightCategory
+                                                                                )}`}
+                                                                            >
+                                                                                {
+                                                                                    weightForHeightCategory
+                                                                                }
+                                                                            </span>
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    }}
+                                                />
+
                                                 <defs>
                                                     <pattern
                                                         id="weightGrid"
@@ -894,6 +1150,20 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                     stroke="#ffffff"
                                                     strokeWidth={1}
                                                 />
+                                                <ReferenceLine
+                                                    x={Math.round(height)} // ✅ ต้องเป็น height
+                                                    stroke="#dc2626"
+                                                    strokeWidth={1.5}
+                                                    strokeDasharray="4 2"
+                                                />
+
+                                                {/* ✅ เส้นแนวนอนผ่าน Y (น้ำหนักของเด็ก) */}
+                                                <ReferenceLine
+                                                    y={weight} // ✅ ต้องเป็น weight
+                                                    stroke="#dc2626"
+                                                    strokeWidth={1.5}
+                                                    strokeDasharray="4 2"
+                                                />
                                             </AreaChart>
                                         </ResponsiveContainer>
                                     </div>
@@ -978,11 +1248,12 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                             {weightCategory})
                                         </span>
                                     </div>
-                                      <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200">
-    <span className="text-pink-700 font-medium">
-      น้ำหนักตามส่วนสูง: {weight} กก. ({weightForHeightCategory})
-    </span>
-  </div>
+                                    <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200">
+                                        <span className="text-pink-700 font-medium">
+                                            น้ำหนักตามส่วนสูง: {weight} กก. (
+                                            {weightForHeightCategory})
+                                        </span>
+                                    </div>
                                 </div>
                             </div>{" "}
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1001,39 +1272,70 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                         </p>
                                     </div>
                                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
-<ResponsiveContainer width="100%" height={300}>
-        <RadarChart outerRadius="75%" data={chartDataHeight}>
-          <PolarGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-          <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: "#374151" }} />
-          <PolarRadiusAxis domain={[0, 150]} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              borderRadius: 8,
-              border: "1px solid #d1d5db",
-              fontSize: 12,
-            }}
-          />
-          <Radar
-            name="ค่ากลางมาตรฐาน"
-            dataKey="reference"
-            stroke="#3B82F6"
-            strokeWidth={2}
-            fill="#60A5FA"
-            fillOpacity={0.25}
-          />
-          <Radar
-            name={`ส่วนสูง (${height} ซม.)`}
-            dataKey="actual"
-            stroke="#1E3A8A"
-            strokeWidth={3}
-            fill="#1E3A8A"
-            fillOpacity={0.3}
-            dot={{ fill: "#2563EB", r: 4 }}
-          />
-          <Legend verticalAlign="bottom" height={30} wrapperStyle={{ fontSize: 12 }} />
-        </RadarChart>
-      </ResponsiveContainer>
+                                        <ResponsiveContainer
+                                            width="100%"
+                                            height={300}
+                                        >
+                                            <RadarChart
+                                                outerRadius="75%"
+                                                data={chartDataHeight}
+                                            >
+                                                <PolarGrid
+                                                    stroke="#e5e7eb"
+                                                    strokeDasharray="3 3"
+                                                />
+                                                <PolarAngleAxis
+                                                    dataKey="category"
+                                                    tick={{
+                                                        fontSize: 11,
+                                                        fill: "#374151",
+                                                    }}
+                                                />
+                                                <PolarRadiusAxis
+                                                    domain={[0, 150]}
+                                                    tick={{
+                                                        fontSize: 10,
+                                                        fill: "#9CA3AF",
+                                                    }}
+                                                />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor:
+                                                            "white",
+                                                        borderRadius: 8,
+                                                        border: "1px solid #d1d5db",
+                                                        fontSize: 12,
+                                                    }}
+                                                />
+                                                <Radar
+                                                    name="ค่ากลางมาตรฐาน"
+                                                    dataKey="reference"
+                                                    stroke="#3B82F6"
+                                                    strokeWidth={2}
+                                                    fill="#60A5FA"
+                                                    fillOpacity={0.25}
+                                                />
+                                                <Radar
+                                                    name={`ส่วนสูง (${height} ซม.)`}
+                                                    dataKey="actual"
+                                                    stroke="#1E3A8A"
+                                                    strokeWidth={3}
+                                                    fill="#1E3A8A"
+                                                    fillOpacity={0.3}
+                                                    dot={{
+                                                        fill: "#2563EB",
+                                                        r: 4,
+                                                    }}
+                                                />
+                                                <Legend
+                                                    verticalAlign="bottom"
+                                                    height={30}
+                                                    wrapperStyle={{
+                                                        fontSize: 12,
+                                                    }}
+                                                />
+                                            </RadarChart>
+                                        </ResponsiveContainer>
                                     </div>
                                 </div>
                                 <div className="w-full">
@@ -1049,43 +1351,72 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                             ({weightCategory})
                                         </p>
                                     </div>
-<div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-
-      <ResponsiveContainer width="100%" height={300}>
-        <RadarChart outerRadius="75%" data={chartDataWeight}>
-          <PolarGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-          <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: "#374151" }} />
-          <PolarRadiusAxis domain={[0, 30]} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              borderRadius: 8,
-              border: "1px solid #d1d5db",
-              fontSize: 12,
-            }}
-          />
-          <Radar
-            name="ค่ากลางมาตรฐาน"
-            dataKey="reference"
-            stroke="#8B5CF6"
-            strokeWidth={2}
-            fill="#A78BFA"
-            fillOpacity={0.25}
-          />
-          <Radar
-            name={`น้ำหนัก (${weight} กก.)`}
-            dataKey="actual"
-            stroke="#7E22CE"
-            strokeWidth={3}
-            fill="#7E22CE"
-            fillOpacity={0.3}
-            dot={{ fill: "#9333EA", r: 4 }}
-          />
-          <Legend verticalAlign="bottom" height={30} wrapperStyle={{ fontSize: 12 }} />
-        </RadarChart>
-      </ResponsiveContainer>
-</div>
-
+                                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                                        <ResponsiveContainer
+                                            width="100%"
+                                            height={300}
+                                        >
+                                            <RadarChart
+                                                outerRadius="75%"
+                                                data={chartDataWeight}
+                                            >
+                                                <PolarGrid
+                                                    stroke="#e5e7eb"
+                                                    strokeDasharray="3 3"
+                                                />
+                                                <PolarAngleAxis
+                                                    dataKey="category"
+                                                    tick={{
+                                                        fontSize: 11,
+                                                        fill: "#374151",
+                                                    }}
+                                                />
+                                                <PolarRadiusAxis
+                                                    domain={[0, 30]}
+                                                    tick={{
+                                                        fontSize: 10,
+                                                        fill: "#9CA3AF",
+                                                    }}
+                                                />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor:
+                                                            "white",
+                                                        borderRadius: 8,
+                                                        border: "1px solid #d1d5db",
+                                                        fontSize: 12,
+                                                    }}
+                                                />
+                                                <Radar
+                                                    name="ค่ากลางมาตรฐาน"
+                                                    dataKey="reference"
+                                                    stroke="#8B5CF6"
+                                                    strokeWidth={2}
+                                                    fill="#A78BFA"
+                                                    fillOpacity={0.25}
+                                                />
+                                                <Radar
+                                                    name={`น้ำหนัก (${weight} กก.)`}
+                                                    dataKey="actual"
+                                                    stroke="#7E22CE"
+                                                    strokeWidth={3}
+                                                    fill="#7E22CE"
+                                                    fillOpacity={0.3}
+                                                    dot={{
+                                                        fill: "#9333EA",
+                                                        r: 4,
+                                                    }}
+                                                />
+                                                <Legend
+                                                    verticalAlign="bottom"
+                                                    height={30}
+                                                    wrapperStyle={{
+                                                        fontSize: 12,
+                                                    }}
+                                                />
+                                            </RadarChart>
+                                        </ResponsiveContainer>
+                                    </div>
                                 </div>
 
                                 <div className="w-full">
@@ -1102,39 +1433,70 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                         </p>
                                     </div>
                                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
-      <ResponsiveContainer width="100%" height={300}>
-        <RadarChart outerRadius="75%" data={chartDataWeightForHeight}>
-          <PolarGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-          <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: "#374151" }} />
-          <PolarRadiusAxis domain={[0, 35]} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              borderRadius: 8,
-              border: "1px solid #d1d5db",
-              fontSize: 12,
-            }}
-          />
-          <Radar
-            name="ค่ากลางมาตรฐาน"
-            dataKey="reference"
-            stroke="#22C55E"
-            strokeWidth={2}
-            fill="#4ADE80"
-            fillOpacity={0.25}
-          />
-          <Radar
-            name={`น้ำหนัก (${weight} กก.)`}
-            dataKey="actual"
-            stroke="#166534"
-            strokeWidth={3}
-            fill="#15803D"
-            fillOpacity={0.3}
-            dot={{ fill: "#22C55E", r: 4 }}
-          />
-          <Legend verticalAlign="bottom" height={30} wrapperStyle={{ fontSize: 12 }} />
-        </RadarChart>
-      </ResponsiveContainer>
+                                        <ResponsiveContainer
+                                            width="100%"
+                                            height={300}
+                                        >
+                                            <RadarChart
+                                                outerRadius="75%"
+                                                data={chartDataWeightForHeight}
+                                            >
+                                                <PolarGrid
+                                                    stroke="#e5e7eb"
+                                                    strokeDasharray="3 3"
+                                                />
+                                                <PolarAngleAxis
+                                                    dataKey="category"
+                                                    tick={{
+                                                        fontSize: 11,
+                                                        fill: "#374151",
+                                                    }}
+                                                />
+                                                <PolarRadiusAxis
+                                                    domain={[0, 35]}
+                                                    tick={{
+                                                        fontSize: 10,
+                                                        fill: "#9CA3AF",
+                                                    }}
+                                                />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor:
+                                                            "white",
+                                                        borderRadius: 8,
+                                                        border: "1px solid #d1d5db",
+                                                        fontSize: 12,
+                                                    }}
+                                                />
+                                                <Radar
+                                                    name="ค่ากลางมาตรฐาน"
+                                                    dataKey="reference"
+                                                    stroke="#22C55E"
+                                                    strokeWidth={2}
+                                                    fill="#4ADE80"
+                                                    fillOpacity={0.25}
+                                                />
+                                                <Radar
+                                                    name={`น้ำหนัก (${weight} กก.)`}
+                                                    dataKey="actual"
+                                                    stroke="#166534"
+                                                    strokeWidth={3}
+                                                    fill="#15803D"
+                                                    fillOpacity={0.3}
+                                                    dot={{
+                                                        fill: "#22C55E",
+                                                        r: 4,
+                                                    }}
+                                                />
+                                                <Legend
+                                                    verticalAlign="bottom"
+                                                    height={30}
+                                                    wrapperStyle={{
+                                                        fontSize: 12,
+                                                    }}
+                                                />
+                                            </RadarChart>
+                                        </ResponsiveContainer>
                                     </div>
                                 </div>
                             </div>

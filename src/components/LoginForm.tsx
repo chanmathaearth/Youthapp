@@ -41,6 +41,7 @@ const LoginForm = () => {
       setTimeout(() => navigate("/"), 1600);
     },
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => {
       Swal.fire({
         icon: "error",

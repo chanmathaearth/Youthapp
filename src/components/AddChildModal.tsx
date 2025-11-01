@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getAll } from "../helpers";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
 
 type ModalProps = {
     message: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onClick: (payload: any) => void; // ✅ รับ payload
     onClose: () => void;
 };
@@ -27,11 +28,20 @@ const Modal: React.FC<ModalProps> = ({ message, onClick, onClose }) => {
         queryFn: () => getAll("room/api/v1/room"),
     });
 
-    const options =
+    const options = useMemo(() => {
+        return (
         roomOptions?.map((room) => ({
-            value: room.id, // ใช้ id เป็น key
-            label: room.name, // ใช้ name เป็น label
-        })) ?? [];
+            value: room.id,
+            label: room.name,
+        })) ?? []
+        );
+    }, [roomOptions]);
+
+    useEffect(() => {
+        if (!room && options.length > 0) {
+        setRoom(String(options[0].value));
+        }
+    }, [options, room]);
 
     return (
         <div
@@ -180,6 +190,7 @@ const Modal: React.FC<ModalProps> = ({ message, onClick, onClose }) => {
                                 nickname,
                                 dob,
                                 room,
+                                gender
                             })
                         }
                         className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"

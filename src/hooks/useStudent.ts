@@ -9,10 +9,16 @@ type DjangoError = {
   [key: string]: string[] | string | undefined;
 };
 
-export const useStudents = () => {
+export const useStudents = (roomId?: number) => {
   return useQuery<Student[]>({
-    queryKey: ["children"],
-    queryFn: () => getAll("children/api/v1/children"),
+    queryKey: ["children", roomId],
+    queryFn: () => {
+      const url = roomId
+        ? `children/api/v1/children?room=${roomId}`
+        : "children/api/v1/children";
+      return getAll(url);
+    },
+    enabled: true,
   });
 };
 
@@ -44,12 +50,14 @@ export const useAddStudent = (onClose?: () => void) => {
       nickname: string;
       dob: string; // YYYY-MM-DD
       room: string | number;
+      gender: string;
     }) => {
       const payload = {
         first_name: newChild.firstName,
         last_name: newChild.lastName,
         nickname: newChild.nickname,
         birth: newChild.dob,
+        gender: newChild.gender,
         room: parseInt(newChild.room as string),
         create_by: 1,
         update_by: 1,

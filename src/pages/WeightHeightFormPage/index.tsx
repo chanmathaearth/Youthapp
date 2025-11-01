@@ -20,7 +20,6 @@ const WeightHeightForm = () => {
     const latestRecord = healthRecords && healthRecords.length > 0 ? healthRecords[0] : null;
 
     const { mutate: createRecord, isPending } = useCreateHealthRecord();
-    console.log(healthRecords)
 
     const handleSave = () => {
         if (!childId) return;

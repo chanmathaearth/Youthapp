@@ -21,36 +21,6 @@ import { useHealthRecordsByChild } from "../../hooks/useHeath";
 import { evaluateGrowth } from "../../utils/evaluateGrowth";
 import { calculateAgeInMonths } from "../../utils/ageCalculated";
 
-const mockData = [
-    {
-        วันที่ประเมิน: "15/12/2024",
-        อายุ: "2 ปี 6 เดือน",
-        ผลการประเมิน: "ผ่าน",
-        น้ำหนัก: "12.8 กก.",
-        ส่วนสูง: "86 ซม.",
-        เกณฑ์ส่วนสูง: "ค่อนข้างสูง",
-        น้ำหนักตามส่วนสูง: "ค่อนข้างอ้วน",
-    },
-    {
-        วันที่ประเมิน: "20/11/2024",
-        อายุ: "2 ปี 5 เดือน",
-        ผลการประเมิน: "ไม่ผ่าน",
-        น้ำหนัก: "12.5 กก.",
-        ส่วนสูง: "85 ซม.",
-        เกณฑ์ส่วนสูง: "ค่อนข้างสูง",
-        น้ำหนักตามส่วนสูง: "สมส่วน",
-    },
-    {
-        วันที่ประเมิน: "20/10/2024",
-        อายุ: "2 ปี 4 เดือน",
-        ผลการประเมิน: "ผ่าน",
-        น้ำหนัก: "12.2 กก.",
-        ส่วนสูง: "84 ซม.",
-        เกณฑ์ส่วนสูง: "ค่อนข้างสูง",
-        น้ำหนักตามส่วนสูง: "สมส่วน",
-    },
-];
-
 const getScoreColor = (status?: string) => {
     switch (status) {
         case "ผ่าน":
@@ -97,6 +67,7 @@ const ResultPage = () => {
 
     const { data: childInfo } = useStudentById(Number(childId));
     const { data: healthRecords } = useHealthRecordsByChild(Number(childId));
+    console.log(healthRecords)
 
     const { data: submissions = [] } = useSubmissionsByChild(Number(childId));
     const latest = (submissions ?? [])[(submissions?.length ?? 1) - 1];
@@ -143,6 +114,43 @@ const ResultPage = () => {
                 height: parseFloat(record.height_cm),
             }),
         })) || [];
+
+        const exportData =
+        (healthRecords ?? []).map((record) => {
+            const ageMonth = calculateAgeInMonths(childInfo.birth);
+            const ageText = dobFormat(childInfo.birth);
+            const growth = evaluateGrowth({
+            gender: childInfo.gender,
+            ageMonth,
+            weight: parseFloat(record.weight_kg),
+            height: parseFloat(record.height_cm),
+            });
+
+            // หาผลการประเมินจาก submission (ถ้ามี)
+            const matchedSubmission = submissions?.find((s) => {
+            const date1 = new Date(s.created_at).toLocaleDateString("th-TH");
+            const date2 = new Date(record.created_at).toLocaleDateString("th-TH");
+            return date1 === date2;
+            });
+            const assessmentResult = matchedSubmission
+            ? matchedSubmission.status === "pass"
+                ? "ผ่าน"
+                : "ไม่ผ่าน"
+            : "-";
+
+            return {
+            วันที่ประเมิน: new Date(record.created_at).toLocaleDateString("th-TH"),
+            อายุ: ageText,
+            ผลการประเมิน: assessmentResult,
+            น้ำหนัก: `${parseFloat(record.weight_kg)} กก.`,
+            ส่วนสูง: `${parseFloat(record.height_cm)} ซม.`,
+            เกณฑ์น้ำหนัก: growth.weightResult,
+            เกณฑ์ส่วนสูง: growth.heightResult,
+            เกณฑ์น้ำหนักตามส่วนสูง: growth.weightHeightResult,
+            };
+        }) || [];
+
+  console.log(exportData)
 
     const navigate = useNavigate();
 
@@ -200,7 +208,7 @@ const ResultPage = () => {
                     <div className="flex items-center space-x-4">
                         <button
                             onClick={() =>
-                                exportToExcel(mockData, "growth-data.xlsx")
+                                exportToExcel(exportData, "growth-data.xlsx")
                             }
                             className="flex items-center bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg text-sm font-medium shadow transition"
                         >
@@ -229,7 +237,7 @@ const ResultPage = () => {
                                     <span>
                                         อายุ: {dobFormat(childInfo?.birth)}
                                     </span>
-                                    <span>เกิด: {childInfo?.birth}</span>
+                                    <span>เกิด: {new Date(childInfo?.birth).toLocaleDateString("th-TH")}</span>
                                     <span>
                                         อัพเดทล่าสุด:{" "}
                                         {new Date(

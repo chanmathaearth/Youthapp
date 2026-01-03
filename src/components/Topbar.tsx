@@ -2,8 +2,8 @@ import { useState } from "react";
 import LanguageToggle from "./languageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 import { getRole } from "../utils/authen";
+import { showSuccessAuto } from "../utils/alert";
 
 const Topbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -17,28 +17,21 @@ const Topbar = () => {
     const role = getRole();
 
     const handleLogout = () => {
-        Swal.fire({
-            icon: "success",
-            title: "Logged out",
-            text: "You have been logged out successfully.",
-            showConfirmButton: false,
-            timer: 1500,
-        });
-
-        // clear token
+        showSuccessAuto(
+            "Logged out",
+            "You have been logged out successfully.",
+            1500
+        );
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-   
-        // redirect
         setTimeout(() => navigate("/login"), 1600);
-
     };
 
     return (
         <header className="sticky top-0 bg-white/80 bg-gradient-to-r backdrop-blur-md shadow-sm font-poppins z-50 p-2 md:p-0">
-            <nav className="flex justify-between items-center w-[90%] mx-auto  relative">
+            <nav className="flex justify-between items-center max-w-7xl px-6 mx-auto  relative">
                 {/* Logo */}
-                <div className="font-medium text-2xl">
+                <div className="font-medium text-2xl sm:ml-13 ml-0">
                     <button onClick={() => navigate("/")}>YOUTHAPP</button>
                 </div>
                 {/* Nav links */}
@@ -56,15 +49,17 @@ const Topbar = () => {
                                 {t("topbar.homepage")}
                             </button>
                         </li>
-                        { role == "admin" && (<li className="hover:text-blue-500 transition-all">
-                            <button
-                                className="font-medium text-xl"
-                                onClick={() => navigate("/admin/dashboard")}
-                            >
-                                {t("topbar.dashboard")}
-                            </button>
-                        </li>)}
-                        
+                        {role == "admin" && (
+                            <li className="hover:text-blue-500 transition-all">
+                                <button
+                                    className="font-medium text-xl"
+                                    onClick={() => navigate("/admin/dashboard")}
+                                >
+                                    {t("topbar.dashboard")}
+                                </button>
+                            </li>
+                        )}
+
                         {/* Mobile only logout */}
                         <li className="md:hidden">
                             <button
@@ -85,8 +80,11 @@ const Topbar = () => {
                     >
                         {t("topbar.signout")}
                     </button>
-                    <LanguageToggle />
-                        <button onClick={() => navigate("/settings")}>
+                    
+                    {/* <LanguageToggle /> */}
+
+
+                    <button onClick={() => navigate("/settings")}>
                         <svg
                             className="w-8 h-8 text-gray-800 hover:text-blue-500"
                             aria-hidden="true"
@@ -112,7 +110,6 @@ const Topbar = () => {
                             />
                         </svg>
                     </button>
-                    
 
                     {/* Hamburger menu */}
                     <div

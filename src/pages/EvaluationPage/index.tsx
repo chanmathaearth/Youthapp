@@ -7,13 +7,17 @@ import StatCard from "../../components/StatCard";
 import circlecheck from "../../assets/circlecheck.svg";
 import alert from "../../assets/alert.svg";
 import AddChildModal from "../../components/AddChildModal";
-import { useAddStudent, useStudentsByRoom } from "../../hooks/useStudent";
+import {
+    useAddStudent,
+    useStudents,
+} from "../../hooks/useStudent";
 import type { ChildData } from "../../components/Table";
 import { useParams } from "react-router-dom";
 import { useRoomById } from "../../hooks/useRoom";
 import { Home } from "lucide-react";
 import type { Student } from "../../interface/student";
 import { dobFormat } from "../../utils/dobFormat";
+import { showError, showSuccessAuto } from "../../utils/alert";
 
 const EvaluationPage = () => {
     const { t } = useTranslation();
@@ -23,26 +27,38 @@ const EvaluationPage = () => {
     const [openChildDialog, setOpenChildDialog] = useState(false);
     const handleStudentModalClose = () => setOpenChildDialog(false);
 
-    const { data: students = [], isLoading, isError } = useStudentsByRoom(Number(roomId));
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const limit = 3;
+
+    const {
+        data: StudentData,
+        isError,
+        isLoading,
+    } = useStudents({
+        roomId: Number(roomId),
+        page,
+        limit,
+        search
+    });
+    const filteredChildren = StudentData?.results ?? [];
     const { mutate: addStudent } = useAddStudent(handleStudentModalClose);
 
     const { data: RoomData } = useRoomById(Number(roomId));
 
-    const childList: ChildData[] = students.map((s: Student) => {
-        return {
-            id: s.id,
-            name: `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim(),
-            nickname: s.nickname ?? "—",
-            age: dobFormat(s.birth),
-            status: s.current_evaluation_status,
-            round: 1,
-            date: s.updated_at
-                ? new Date(s.updated_at).toLocaleDateString("th-TH")
-                : "—",
-            room: s.room_name ?? "ไม่ระบุห้อง",
-            roomId: s.room,
-        };
-    });
+    const childList: ChildData[] = filteredChildren.map((s: Student) => ({
+        id: s.id,
+        name: `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim(),
+        nickname: s.nickname ?? "",
+        age: dobFormat(s.birth),
+        status: s.current_evaluation_status,
+        round: 1,
+        date: s.updated_at
+            ? new Date(s.updated_at).toLocaleDateString("th-TH")
+            : "",
+        room: s.room_name ?? "ไม่ระบุห้อง",
+        roomId: typeof s.room === "number" ? s.room : s.room.id,
+    }));
 
     const successCount = childList.filter((s) => s.status === "success").length;
     const holdCount = childList.filter((s) => s.status === "hold").length;
@@ -126,7 +142,24 @@ const EvaluationPage = () => {
                         </p>
                     )}
                     {!isLoading && !isError && (
-                        <Table_ childrenList={childList} />
+                        <>
+                        <Table_
+                        childrenList={childList}
+                        page={page}
+                        limit={limit}
+                        total={StudentData?.count ?? 0}
+                        hasNext={!!StudentData?.next}
+                        hasPrev={!!StudentData
+                            ?.previous}
+                        onPageChange={setPage}
+                        search={search}
+                        onSearchChange={(v) => {
+                            setSearch(v);
+                            setPage(1); // สำคัญ
+                        }}
+                        />
+
+                        </>
                     )}
                 </div>
             </main>
@@ -135,7 +168,26 @@ const EvaluationPage = () => {
             {openChildDialog && (
                 <AddChildModal
                     message="ฟอร์มเพิ่มเด็ก"
-                    onClick={(payload) => addStudent(payload)}
+                    onClick={(payload) =>
+                        addStudent(payload, {
+                            onSuccess: () => {
+                                showSuccessAuto(
+                                    "สำเร็จ",
+                                    "บันทึกข้อมูลเรียบร้อย"
+                                );
+                                handleStudentModalClose();
+                            },
+                            onError: (err) => {
+                                showError(
+                                    "ไม่สำเร็จ",
+                                    typeof err?.response?.data?.message ===
+                                        "string"
+                                        ? err.response.data.message
+                                        : "เกิดข้อผิดพลาด"
+                                );
+                            },
+                        })
+                    }
                     onClose={handleStudentModalClose}
                 />
             )}

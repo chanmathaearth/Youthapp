@@ -9,7 +9,7 @@ const HomePage = () => {
     const { data: programs } = useRooms(); 
 
     return (
-        <div className="relative w-screen h-screen bg-gradient-to-r from-blue-50 via-sky-50 to-cyan-50">
+        <div className="relative w-full h-screen bg-gradient-to-r from-blue-50 via-sky-50 to-cyan-50 overflow-x-hidden">
             <div className="relative z-10 flex items-center justify-center h-auto w-full px-4">
                 <main className="relative z-10 container mx-auto px-4 py-12 h-[100vh]">
                     <div className="text-center mb-16">
@@ -36,8 +36,7 @@ const HomePage = () => {
                                 minAge={program.min_age}
                                 maxAge={program.max_age}         
                                 childrenCount={program.children_count}
-                                // image={program.image}
-                                />
+                                image={program.image}                                />
                         ))}
                     </div>
                 </main>

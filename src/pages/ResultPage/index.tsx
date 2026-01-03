@@ -67,7 +67,6 @@ const ResultPage = () => {
 
     const { data: childInfo } = useStudentById(Number(childId));
     const { data: healthRecords } = useHealthRecordsByChild(Number(childId));
-    console.log(healthRecords)
 
     const { data: submissions = [] } = useSubmissionsByChild(Number(childId));
     const latest = (submissions ?? [])[(submissions?.length ?? 1) - 1];
@@ -87,11 +86,11 @@ const ResultPage = () => {
                       latestHealthRecord.created_at ?? ""
                   ).toLocaleDateString("th-TH"),
                   round: latestHealthRecord.round,
-                  ageMonth: calculateAgeInMonths(childInfo.birth),
-                  gender: childInfo.gender,
+                  ageMonth: calculateAgeInMonths(childInfo?.birth),
+                  gender: childInfo?.gender,
                   growthResult: evaluateGrowth({
-                      gender: childInfo.gender,
-                      ageMonth: calculateAgeInMonths(childInfo.birth),
+                      gender: childInfo?.gender,
+                      ageMonth: calculateAgeInMonths(childInfo?.birth),
                       weight: parseFloat(latestHealthRecord.weight_kg),
                       height: parseFloat(latestHealthRecord.height_cm),
                   }),
@@ -108,49 +107,53 @@ const ResultPage = () => {
             height: parseFloat(record.height_cm),
             remarks: record.remarks,
             growthResult: evaluateGrowth({
-                gender: childInfo.gender,
-                ageMonth: calculateAgeInMonths(childInfo.birth),
+                gender: childInfo?.gender,
+                ageMonth: calculateAgeInMonths(childInfo?.birth),
                 weight: parseFloat(record.weight_kg),
                 height: parseFloat(record.height_cm),
             }),
         })) || [];
 
-        const exportData =
+    const exportData =
         (healthRecords ?? []).map((record) => {
-            const ageMonth = calculateAgeInMonths(childInfo.birth);
-            const ageText = dobFormat(childInfo.birth);
+            const ageMonth = calculateAgeInMonths(childInfo?.birth);
+            const ageText = dobFormat(childInfo?.birth);
             const growth = evaluateGrowth({
-            gender: childInfo.gender,
-            ageMonth,
-            weight: parseFloat(record.weight_kg),
-            height: parseFloat(record.height_cm),
+                gender: childInfo?.gender,
+                ageMonth,
+                weight: parseFloat(record.weight_kg),
+                height: parseFloat(record.height_cm),
             });
 
             // หาผลการประเมินจาก submission (ถ้ามี)
             const matchedSubmission = submissions?.find((s) => {
-            const date1 = new Date(s.created_at).toLocaleDateString("th-TH");
-            const date2 = new Date(record.created_at).toLocaleDateString("th-TH");
-            return date1 === date2;
+                const date1 = new Date(s.created_at).toLocaleDateString(
+                    "th-TH"
+                );
+                const date2 = new Date(record.created_at).toLocaleDateString(
+                    "th-TH"
+                );
+                return date1 === date2;
             });
             const assessmentResult = matchedSubmission
-            ? matchedSubmission.status === "pass"
-                ? "ผ่าน"
-                : "ไม่ผ่าน"
-            : "-";
+                ? matchedSubmission.status === "pass"
+                    ? "ผ่าน"
+                    : "ไม่ผ่าน"
+                : "-";
 
             return {
-            วันที่ประเมิน: new Date(record.created_at).toLocaleDateString("th-TH"),
-            อายุ: ageText,
-            ผลการประเมิน: assessmentResult,
-            น้ำหนัก: `${parseFloat(record.weight_kg)} กก.`,
-            ส่วนสูง: `${parseFloat(record.height_cm)} ซม.`,
-            เกณฑ์น้ำหนัก: growth.weightResult,
-            เกณฑ์ส่วนสูง: growth.heightResult,
-            เกณฑ์น้ำหนักตามส่วนสูง: growth.weightHeightResult,
+                วันที่ประเมิน: new Date(record.created_at).toLocaleDateString(
+                    "th-TH"
+                ),
+                อายุ: ageText,
+                ผลการประเมิน: assessmentResult,
+                น้ำหนัก: `${parseFloat(record.weight_kg)} กก.`,
+                ส่วนสูง: `${parseFloat(record.height_cm)} ซม.`,
+                เกณฑ์น้ำหนัก: growth.weightResult,
+                เกณฑ์ส่วนสูง: growth.heightResult,
+                เกณฑ์น้ำหนักตามส่วนสูง: growth.weightHeightResult,
             };
         }) || [];
-
-  console.log(exportData)
 
     const navigate = useNavigate();
 
@@ -159,7 +162,7 @@ const ResultPage = () => {
             {openHW && (
                 <HeightWeightModal
                     message="กราฟการเจริญเติบโต"
-                    name={childInfo.nickname}
+                    name={childInfo?.nickname}
                     ageInMonths={growthSummary?.ageMonth}
                     height={growthSummary?.height}
                     weight={growthSummary?.weight}
@@ -174,12 +177,12 @@ const ResultPage = () => {
                     records={
                         healthRecords.map((r) => ({
                             ...r,
-                            ageMonth: calculateAgeInMonths(childInfo.birth),
-                            birth: childInfo.birth,
-                            gender: childInfo.gender,
+                            ageMonth: calculateAgeInMonths(childInfo?.birth),
+                            birth: childInfo?.birth,
+                            gender: childInfo?.gender,
                             growthResult: evaluateGrowth({
-                                gender: childInfo.gender,
-                                ageMonth: calculateAgeInMonths(childInfo.birth),
+                                gender: childInfo?.gender,
+                                ageMonth: calculateAgeInMonths(childInfo?.birth),
                                 weight: parseFloat(r.weight_kg),
                                 height: parseFloat(r.height_cm),
                             }),
@@ -237,7 +240,12 @@ const ResultPage = () => {
                                     <span>
                                         อายุ: {dobFormat(childInfo?.birth)}
                                     </span>
-                                    <span>เกิด: {new Date(childInfo?.birth).toLocaleDateString("th-TH")}</span>
+                                    <span>
+                                        เกิด:{" "}
+                                        {new Date(
+                                            childInfo?.birth
+                                        ).toLocaleDateString("th-TH")}
+                                    </span>
                                     <span>
                                         อัพเดทล่าสุด:{" "}
                                         {new Date(
@@ -396,47 +404,50 @@ const ResultPage = () => {
                         </div>
                         <div className="p-6">
                             <div className="space-y-4">
-                                {submissions.slice(0, 3).map((result, index) => {
-                                    const round = index + 1;
+                                {submissions
+                                    .slice(0, 3)
+                                    .map((result, index) => {
+                                        const round = index + 1;
 
-                                    return (
-                                        <div
-                                            key={result.id}
-                                            className="flex items-center justify-between p-3 py-4 bg-gray-50 rounded-lg"
-                                        >
-                                            <div>
-                                                <div className="font-medium text-gray-900">
-                                                    ครั้งที่ {round}
+                                        return (
+                                            <div
+                                                key={result.id}
+                                                className="flex items-center justify-between p-3 py-4 bg-gray-50 rounded-lg"
+                                            >
+                                                <div>
+                                                    <div className="font-medium text-gray-900">
+                                                        ครั้งที่ {round}
+                                                    </div>
+                                                    <div className="text-sm text-gray-500">
+                                                        {new Date(
+                                                            result.created_at
+                                                        ).toLocaleDateString(
+                                                            "th-TH"
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div className="text-sm text-gray-500">
-                                                    {new Date(
-                                                        result.created_at
-                                                    ).toLocaleDateString(
-                                                        "th-TH"
-                                                    )}
+
+                                                <div className="flex flex-col justify-center text-right">
+                                                    <div
+                                                        className={`text-sm font-bold ${getScoreColor(
+                                                            result.status_display
+                                                        )}`}
+                                                    >
+                                                        ทำได้{" "}
+                                                        {result.passed_items}/
+                                                        {result.total_items} ข้อ
+                                                    </div>
+                                                    <div className="text-xs mx-auto">
+                                                        {getStatusBadge(
+                                                            result.status_display as
+                                                                | "ผ่าน"
+                                                                | "ไม่ผ่าน"
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-
-                                            <div className="flex flex-col justify-center text-right">
-                                                <div
-                                                    className={`text-sm font-bold ${getScoreColor(
-                                                        result.status_display
-                                                    )}`}
-                                                >
-                                                    ทำได้ {result.passed_items}/
-                                                    {result.total_items} ข้อ
-                                                </div>
-                                                <div className="text-xs mx-auto">
-                                                    {getStatusBadge(
-                                                        result.status_display as
-                                                            | "ผ่าน"
-                                                            | "ไม่ผ่าน"
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                        );
+                                    })}
                             </div>
                         </div>
                     </div>
@@ -464,73 +475,75 @@ const ResultPage = () => {
                         </div>
                         <div className="p-6">
                             <div className="space-y-4">
-                                {growthResults.slice(0, 3).map((result, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg py-4"
-                                    >
-                                        {/* รอบและวันที่ */}
-                                        <div>
-                                            <div className="font-medium text-gray-900">
-                                                ครั้งที่ {result.round}
+                                {growthResults
+                                    .slice(0, 3)
+                                    .map((result, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg py-4"
+                                        >
+                                            {/* รอบและวันที่ */}
+                                            <div>
+                                                <div className="font-medium text-gray-900">
+                                                    ครั้งที่ {result.round}
+                                                </div>
+                                                <div className="text-sm text-gray-500">
+                                                    {result.date}
+                                                </div>
                                             </div>
-                                            <div className="text-sm text-gray-500">
-                                                {result.date}
-                                            </div>
-                                        </div>
 
-                                        {/* ค่าต่าง ๆ */}
-                                        <div className="text-right">
-                                            <div className="text-sm">
-                                                <span className="text-blue-600 font-semibold">
-                                                    {result.weight} กก.
-                                                </span>
-                                                <span className="text-gray-400 mx-1">
-                                                    |
-                                                </span>
-                                                <span className="text-green-600 font-semibold">
-                                                    {result.height} ซม.
-                                                </span>
-                                                <span className="text-gray-400 mx-1">
-                                                    |
-                                                </span>
+                                            {/* ค่าต่าง ๆ */}
+                                            <div className="text-right">
+                                                <div className="text-sm">
+                                                    <span className="text-blue-600 font-semibold">
+                                                        {result.weight} กก.
+                                                    </span>
+                                                    <span className="text-gray-400 mx-1">
+                                                        |
+                                                    </span>
+                                                    <span className="text-green-600 font-semibold">
+                                                        {result.height} ซม.
+                                                    </span>
+                                                    <span className="text-gray-400 mx-1">
+                                                        |
+                                                    </span>
 
-                                                {/* ✅ สถานะน้ำหนักตามส่วนสูง */}
-                                                <span
-                                                    className={
-                                                        result.growthResult
-                                                            .weightHeightResult ===
-                                                        "สมส่วน"
-                                                            ? "text-green-600 font-semibold"
-                                                            : result.growthResult.weightHeightResult.includes(
-                                                                  "ผอม"
-                                                              )
-                                                            ? "text-yellow-600 font-semibold"
-                                                            : "text-red-600 font-semibold"
-                                                    }
-                                                >
+                                                    {/* ✅ สถานะน้ำหนักตามส่วนสูง */}
+                                                    <span
+                                                        className={
+                                                            result.growthResult
+                                                                .weightHeightResult ===
+                                                            "สมส่วน"
+                                                                ? "text-green-600 font-semibold"
+                                                                : result.growthResult.weightHeightResult.includes(
+                                                                      "ผอม"
+                                                                  )
+                                                                ? "text-yellow-600 font-semibold"
+                                                                : "text-red-600 font-semibold"
+                                                        }
+                                                    >
+                                                        {
+                                                            result.growthResult
+                                                                .weightHeightResult
+                                                        }
+                                                    </span>
+                                                </div>
+
+                                                {/* ✅ แสดงสถานะน้ำหนักและส่วนสูงเพิ่มเติม */}
+                                                <div className="text-xs text-gray-500">
                                                     {
                                                         result.growthResult
-                                                            .weightHeightResult
+                                                            .weightResult
+                                                    }{" "}
+                                                    |{" "}
+                                                    {
+                                                        result.growthResult
+                                                            .heightResult
                                                     }
-                                                </span>
-                                            </div>
-
-                                            {/* ✅ แสดงสถานะน้ำหนักและส่วนสูงเพิ่มเติม */}
-                                            <div className="text-xs text-gray-500">
-                                                {
-                                                    result.growthResult
-                                                        .weightResult
-                                                }{" "}
-                                                |{" "}
-                                                {
-                                                    result.growthResult
-                                                        .heightResult
-                                                }
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
                         </div>
                     </div>

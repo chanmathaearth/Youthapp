@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { getAll } from "../helpers";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
+import { showError, showSuccessAuto } from "../utils/alert";
+import { validateForm } from "../utils/validate";
 
 type ModalProps = {
     message: string;
@@ -30,16 +32,41 @@ const Modal: React.FC<ModalProps> = ({ message, onClick, onClose }) => {
 
     const options = useMemo(() => {
         return (
-        roomOptions?.map((room) => ({
-            value: room.id,
-            label: room.name,
-        })) ?? []
+            roomOptions?.map((room) => ({
+                value: room.id,
+                label: room.name,
+            })) ?? []
         );
     }, [roomOptions]);
 
+    const handleSubmit = () => {
+  const payload = {
+    firstName,
+    lastName,
+    nickname,
+    dob,
+    room,
+    gender,
+  };
+
+  const isFill = validateForm(payload, [
+    "firstName",
+    "lastName",
+    "nickname",
+    "dob",
+    "room",
+    "gender",
+  ]);
+
+  if (!isFill) return;
+
+  onClick(payload); // ✅ ส่งอย่างเดียว ไม่ยิง success ที่นี่
+};
+
+
     useEffect(() => {
         if (!room && options.length > 0) {
-        setRoom(String(options[0].value));
+            setRoom(String(options[0].value));
         }
     }, [options, room]);
 
@@ -183,16 +210,7 @@ const Modal: React.FC<ModalProps> = ({ message, onClick, onClose }) => {
                         ยกเลิก
                     </button>
                     <button
-                        onClick={() =>
-                            onClick({
-                                firstName,
-                                lastName,
-                                nickname,
-                                dob,
-                                room,
-                                gender
-                            })
-                        }
+                        onClick={handleSubmit}
                         className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
                     >
                         คลิกเพื่อทำการ

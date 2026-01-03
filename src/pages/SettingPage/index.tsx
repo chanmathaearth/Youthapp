@@ -42,7 +42,6 @@ import { th } from "date-fns/locale";
 import {
     useUsers,
     useUserById,
-    useDeleteUser,
     useUpdateUser,
     useUpdateUserStatus,
     useAddUser,
@@ -68,20 +67,10 @@ import { validateForm } from "../../utils/validate";
 
 //interface
 import type { User } from "../../interface/user";
-import type { Teacher } from "../../interface/teacher";
 import type { Student } from "../../interface/student";
 import { getRole } from "../../utils/authen";
 
 type Role = "admin" | "teacher";
-
-type Room = {
-    id: number;
-    name: string;
-    min_age: number;
-    max_age: number;
-    teachers: Teacher[];
-    children_count: number;
-};
 
 type EditRoom = {
     id: number;
@@ -91,6 +80,7 @@ type EditRoom = {
     max_age: number;
     staff_ids: number[];
     assignment_ids: number;
+    image: string;
 };
 
 type NewUserInput = {
@@ -227,25 +217,6 @@ const SettingsPage = () => {
     const [searchName, setSearchName] = useState("");
     const [selectedRoom, setSelectedRoom] = useState("");
     const role = getRole();
-    
-
-    // const [editImageFile, setEditImageFile] = useState<File | null>(null);
-    // const [editImagePreview, setEditImagePreview] = useState<string | null>(
-    //     null
-    // );
-
-    // const onPickEditImage = (file?: File) => {
-    //     if (!file) return;
-    //     setEditImageFile(file);
-    //     const url = URL.createObjectURL(file);
-    //     setEditImagePreview(url);
-    // };
-
-    // const clearPickedEditImage = () => {
-    //     if (editImagePreview) URL.revokeObjectURL(editImagePreview);
-    //     setEditImageFile(null);
-    //     setEditImagePreview(null);
-    // };
 
     //Modal Section
     const [UpdateUserOpen, setUpdateUserOpen] = useState<boolean>(false);
@@ -300,8 +271,6 @@ const SettingsPage = () => {
 
     //Student
     const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [filteredChildren, setFilteredChildren] = useState<any[]>([]);
     const handleStudentModalClose = () => setOpenChildDialog(false);
     const handleUserModalClose = () => setOpenUserDialog(false);
     const handleRoomModalClose = () => setAddRoomModal(false);
@@ -347,14 +316,20 @@ const SettingsPage = () => {
 
     const handleUpdateRoom = () => {
         if (!editRoom) return;
+
+        const formData = new FormData();
+        formData.append("name", editRoom.name);
+        formData.append("min_age", String(editRoom.min_age));
+        formData.append("max_age", String(editRoom.max_age));
+        formData.append("staff_ids", JSON.stringify(editRoom.staff_ids));
+
+        if (editImageFile) {
+            formData.append("image", editImageFile); // ✅ ถูกต้อง 100%
+        }
+
         updateRoom({
             id: editRoom.id,
-            data: {
-                name: editRoom.name,
-                min_age: editRoom.min_age,
-                max_age: editRoom.max_age,
-                staff_ids: editRoom.staff_ids,
-            },
+            data: formData,
         });
 
         closeEditRoom();
@@ -390,14 +365,6 @@ const SettingsPage = () => {
 
     const { mutate: deleteStudent } = useDeleteStudent();
     const { mutate: deleteRoom } = useDeleteRoom();
-    const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
-
-    //handle Delete Section
-    const handleDeleteUser = async (id: number) => {
-        if (await confirmDelete("คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้นี้")) {
-            deleteUser(id);
-        }
-    };
 
     const handleDeleteStudent = async (id: number) => {
         if (await confirmDelete("เมื่อลบแล้วจะไม่สามารถกู้คืนข้อมูลได้!")) {
@@ -416,13 +383,21 @@ const SettingsPage = () => {
     const { data: users = [] } = useUsers();
     const { data: editUserData } = useUserById(UpdateUser?.id);
     const { data: rooms = [] } = useRooms();
+    console.log(rooms);
     const { data: editRoomData } = useRoomById(editRoomId ?? undefined);
-    const { data: StudentData } = useStudents();
-    console.log(StudentData)
+    const [page, setPage] = useState(1);
+    const limit = 3;
+    const { data: StudentData } = useStudents({
+        roomId: Number(selectedRoom),
+        page,
+        limit,
+        search: searchName,
+    });
+    const filteredChildren = StudentData?.results ?? [];
+
     const { data: editStudentData } = useStudentById(
         editStudentId ?? undefined
     );
-
 
     //useEffect Section
 
@@ -447,6 +422,7 @@ const SettingsPage = () => {
                 is_active: editRoomData.is_active,
                 min_age: editRoomData.min_age,
                 max_age: editRoomData.max_age,
+                image: editRoomData.image ?? null,
                 staff_ids: editRoomData.teachers.map(
                     (t: TeacherAssignment) => t.staff_id
                 ),
@@ -454,36 +430,6 @@ const SettingsPage = () => {
             });
         }
     }, [editRoomData]);
-
-    useEffect(() => {
-        if (StudentData) {
-            let filtered = StudentData;
-
-            // ค้นหาจากชื่อ-นามสกุล หรือชื่อเล่น
-            if (searchName) {
-                filtered = filtered.filter((child: Student) => {
-                    const fullName = `${child.first_name} ${child.last_name}`;
-                    return (
-                        fullName
-                            .toLowerCase()
-                            .includes(searchName.toLowerCase()) ||
-                        child.nickname
-                            ?.toLowerCase()
-                            .includes(searchName.toLowerCase())
-                    );
-                });
-            }
-
-            if (selectedRoom) {
-                filtered = filtered.filter(
-                    (child: Student) =>
-                        String(child.room) === String(selectedRoom)
-                );
-            }
-
-            setFilteredChildren(filtered);
-        }
-    }, [StudentData, searchName, selectedRoom]);
 
     //Component Section
     const options =
@@ -502,11 +448,35 @@ const SettingsPage = () => {
     const selectedTeachers = teacherOptions.filter((opt) =>
         editRoom?.staff_ids?.includes(opt.value)
     );
-      useEffect(() => {
-    if (role === "teacher") {
-      setActiveTab(2);
-    }
-  }, [role]);
+    useEffect(() => {
+        if (role === "teacher") {
+            setActiveTab(2);
+        }
+    }, [role]);
+
+    //image Section
+    const [editImageFile, setEditImageFile] = useState<File | null>(null);
+    const [editImagePreview, setEditImagePreview] = useState<string | null>(
+        null
+    );
+
+    const onPickEditImage = (file?: File) => {
+        if (!file) return;
+
+        // ✅ เช็กก่อนว่าเป็นรูป
+        if (!file.type.startsWith("image/")) {
+            alert("กรุณาเลือกรูปภาพเท่านั้น");
+            return;
+        }
+
+        setEditImageFile(file);
+        setEditImagePreview(URL.createObjectURL(file)); // ใช้แค่ preview
+    };
+
+    const clearPickedEditImage = () => {
+        setEditImageFile(null);
+        setEditImagePreview(null);
+    };
 
     return (
         <Box className="min-h-screen bg-gradient-to-br from-blue-50 to-sky-50">
@@ -522,19 +492,22 @@ const SettingsPage = () => {
                             allowScrollButtonsMobile
                             className="min-h-[72px]"
                         >
-                            
                             <Tab
                                 icon={<Users size={20} />}
-                                  sx={{ display: role === "teacher" ? "none" : "flex" }}
-
+                                sx={{
+                                    display:
+                                        role === "teacher" ? "none" : "flex",
+                                }}
                                 iconPosition="start"
                                 label="จัดการผู้ใช้"
                                 className="normal-case text-[16px] font-semibold min-h-[72px] px-6 text-gray-700 gap-2 font-poppins"
                             />
                             <Tab
                                 icon={<School size={20} />}
-                                  sx={{ display: role === "teacher" ? "none" : "flex" }}
-
+                                sx={{
+                                    display:
+                                        role === "teacher" ? "none" : "flex",
+                                }}
                                 iconPosition="start"
                                 label="จัดการห้องเรียน"
                                 className="normal-case text-[16px] font-semibold min-h-[72px] px-6 text-gray-700 gap-2"
@@ -985,7 +958,7 @@ const SettingsPage = () => {
                                         {/* body */}
                                         <Box className="px-5 py-4">
                                             <Box className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                {/* <Box className="sm:col-span-2">
+                                                <Box className="sm:col-span-2">
                                                     <label className="block text-sm text-gray-600 mb-2">
                                                         รูปประจำห้อง
                                                     </label>
@@ -994,14 +967,13 @@ const SettingsPage = () => {
                                                         <img
                                                             src={
                                                                 editImagePreview ||
-                                                                (
-                                                                    editRoom as any
-                                                                ).imageUrl ||
-                                                                "https://via.placeholder.com/800x450?text=No+Image"
+                                                                editRoom?.image ||
+                                                                "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJlc2Nob29sfGVufDB8fDB8fHww"
                                                             }
                                                             alt="room"
                                                             className="w-full h-full object-cover"
                                                         />
+
                                                         <Box className="absolute bottom-3 right-3 flex items-center gap-2">
                                                             {editImagePreview && (
                                                                 <button
@@ -1037,7 +1009,7 @@ const SettingsPage = () => {
                                                     <p className="text-xs text-gray-500 mt-2">
                                                         รองรับ .jpg .png .webp
                                                     </p>
-                                                </Box> */}
+                                                </Box>
 
                                                 <Box className="flex flex-col gap-1.5">
                                                     <label className="text-sm text-gray-600">
@@ -1848,31 +1820,6 @@ const SettingsPage = () => {
                                                     >
                                                         <Edit size={16} />
                                                     </button>
-
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDeleteUser(
-                                                                user.id
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            isDeleting ||
-                                                            user.role ===
-                                                                "admin"
-                                                        }
-                                                        className={`w-full sm:w-auto px-3 py-2 border-2 rounded-[10px] flex items-center justify-center
-    ${
-        user.role === "admin"
-            ? "opacity-50 cursor-not-allowed border-red-600 text-red-600"
-            : "border-red-600 text-red-600 hover:bg-red-50"
-    }`}
-                                                    >
-                                                        {isDeleting ? (
-                                                            <span className="animate-spin border-2 border-red-600 border-t-transparent rounded-full w-4 h-4"></span>
-                                                        ) : (
-                                                            <Trash2  size={16} />
-                                                        )}
-                                                    </button>
                                                 </Box>
                                             </Box>
                                         </Box>
@@ -1958,7 +1905,7 @@ const SettingsPage = () => {
                             </Box>
 
                             <Box className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6">
-                                {rooms.map((room: Room) => (
+                                {rooms.map((room) => (
                                     <Box
                                         key={room.id}
                                         className="border-2 border-gray-200 rounded-2xl transition-all duration-300 hover:border-gray-300 hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] overflow-hidden"
@@ -1968,6 +1915,7 @@ const SettingsPage = () => {
                                         <Box className="aspect-video relative w-full p-4 bg-white">
                                             <img
                                                 src={
+                                                    room.image ??
                                                     "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJlc2Nob29sfGVufDB8fDB8fHww"
                                                 }
                                                 alt={room.name}
@@ -2197,13 +2145,15 @@ const SettingsPage = () => {
                                                             </span>
                                                             <span
                                                                 className={`rounded-full text-[10px] sm:text-xs font-semibold px-2.5 py-1 
-    ${
-        student.gender === "male"
-            ? "bg-blue-100 text-blue-600"
-            : student.gender === "female"
-            ? "bg-pink-100 text-pink-600"
-            : "bg-gray-100 text-gray-500"
-    }`}
+                                                            ${
+                                                                student.gender ===
+                                                                "male"
+                                                                    ? "bg-blue-100 text-blue-600"
+                                                                    : student.gender ===
+                                                                      "female"
+                                                                    ? "bg-pink-100 text-pink-600"
+                                                                    : "bg-gray-100 text-gray-500"
+                                                            }`}
                                                             >
                                                                 {student.gender ===
                                                                 "male"
@@ -2271,7 +2221,7 @@ const SettingsPage = () => {
                                                     <button
                                                         onClick={() =>
                                                             navigate(
-                                                            `/rooms/${student.room}/evaluations/${student.id}/result`
+                                                                `/rooms/${student.room}/evaluations/${student.id}/result`
                                                             )
                                                         }
                                                         className="w-full sm:w-auto px-3 py-1 border-2 border-green-600 text-green-600 rounded-[10px] hover:bg-blue-50 flex items-center justify-center"
@@ -2295,15 +2245,61 @@ const SettingsPage = () => {
                                                                 student.id
                                                             )
                                                         }
-                                                        className={`w-full sm:w-auto px-3 py-2 border-2 rounded-[10px] flex items-center justify-center border-red-600 text-red-600 hover:bg-red-50 ${role === "teacher" ? "hidden" : "text-gray-700"}`}
+                                                        className={`w-full sm:w-auto px-3 py-2 border-2 rounded-[10px] flex items-center justify-center border-red-600 text-red-600 hover:bg-red-50 ${
+                                                            role === "teacher"
+                                                                ? "hidden"
+                                                                : "text-gray-700"
+                                                        }`}
                                                     >
-                                                        <Trash2  size={16} />
+                                                        <Trash2 size={16} />
                                                     </button>
                                                 </Box>
                                             </Box>
                                         </Box>
                                     </Box>
                                 ))}
+                                <div className="flex justify-between items-center mt-6">
+                                    <button
+                                        disabled={!StudentData?.previous}
+                                        onClick={() =>
+                                            setPage((p) => Math.max(p - 1, 1))
+                                        }
+                                        className="
+      px-5 py-2 rounded-xl border
+      border-blue-300 text-blue-600
+      hover:bg-blue-50
+      disabled:border-gray-200
+      disabled:text-gray-400
+      disabled:bg-gray-50
+      disabled:cursor-not-allowed
+    "
+                                    >
+                                        ก่อนหน้า
+                                    </button>
+
+                                    <span className="text-sm text-gray-600">
+                                        หน้า <b>{page}</b> /{" "}
+                                        {Math.ceil(
+                                            (StudentData?.count ?? 0) / limit
+                                        )}
+                                    </span>
+
+                                    <button
+                                        disabled={!StudentData?.next}
+                                        onClick={() => setPage((p) => p + 1)}
+                                        className="
+      px-5 py-2 rounded-xl border
+      border-blue-300 text-blue-600
+      hover:bg-blue-50
+      disabled:border-gray-200
+      disabled:text-gray-400
+      disabled:bg-gray-50
+      disabled:cursor-not-allowed
+    "
+                                    >
+                                        ถัดไป
+                                    </button>
+                                </div>
                             </Box>
                         </Box>
                     )}

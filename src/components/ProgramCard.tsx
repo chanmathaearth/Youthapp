@@ -32,7 +32,7 @@ const Card: React.FC<CardProps> = ({
     minAge,
     maxAge,
     childrenCount,
-    // image,
+    image,
     teachers,
 }) => {
     const { t } = useTranslation();
@@ -65,7 +65,7 @@ const Card: React.FC<CardProps> = ({
                 <div className="aspect-video overflow-hidden relative w-full">
                     <img
                         className="rounded-2xl object-cover w-full h-full group-hover:scale-110 transition-all duration-300"
-                        src="https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJlc2Nob29sfGVufDB8fDB8fHww"
+                        src={image?? "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJlc2Nob29sfGVufDB8fDB8fHww"}
                         alt={name}
                     />
                 </div>

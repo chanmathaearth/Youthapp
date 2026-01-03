@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningIcon from "@mui/icons-material/Warning";
-import React, { useState } from "react";
+import React from "react";
 import { Brain, Scale, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -30,9 +30,16 @@ export type ChildData = {
     roomId: number;
 };
 
-// 🔹 Props ที่รับเข้ามา
 type Props = {
     childrenList: ChildData[];
+    page: number;
+    total: number;
+    limit: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+    onPageChange: (page: number) => void;
+    search: string;
+    onSearchChange: (value: string) => void;
 };
 
 const getStatusIcon = (status: string) => {
@@ -77,13 +84,18 @@ const getStatusBadge = (status: string) => {
     );
 };
 
-const Table_: React.FC<Props> = ({ childrenList }) => {
-    const [searchTerm, setSearchTerm] = useState("");
+const Table_: React.FC<Props> = ({
+    childrenList,
+    page,
+    total,
+    limit,
+    hasNext,
+    hasPrev,
+    onPageChange,
+    search,
+    onSearchChange,
+}) => {
     const navigate = useNavigate();
-
-    const filteredChildren = childrenList.filter((child) =>
-        child.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <Card sx={{ bgcolor: "white", borderRadius: 4, boxShadow: 2, p: 2 }}>
@@ -109,8 +121,8 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                             />
                             <input
                                 className="fonts-poppins border border-gray-200 p-2 rounded-xl pl-10 w-[100%] text-sm font-light hidden md:block"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                value={search}
+                                onChange={(e) => onSearchChange(e.target.value)}
                             />
                         </Box>
                     </Box>
@@ -148,7 +160,7 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredChildren.map((child) => (
+                        {childrenList.map((child) => (
                             <TableRow key={child.id}>
                                 <TableCell>
                                     <Box
@@ -204,9 +216,8 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                             <Button
                                                 onClick={() =>
                                                     navigate(
-                                                    `/rooms/${child.roomId}/evaluations/${child.id}/assessment`
+                                                        `/rooms/${child.roomId}/evaluations/${child.id}/assessment`
                                                     )
-                                                    
                                                 }
                                                 variant="contained"
                                                 color="secondary"
@@ -225,7 +236,7 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                             <Button
                                                 onClick={() =>
                                                     navigate(
-                                                    `/rooms/${child.roomId}/evaluations/${child.id}/growth`
+                                                        `/rooms/${child.roomId}/evaluations/${child.id}/growth`
                                                     )
                                                 }
                                                 variant="contained"
@@ -245,7 +256,9 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                                         <Button
                                             onClick={() =>
                                                 navigate(
-                                                    `/rooms/${child.room.toLowerCase()}/evaluations/${child.id}/result`
+                                                    `/rooms/${child.room.toLowerCase()}/evaluations/${
+                                                        child.id
+                                                    }/result`
                                                 )
                                             }
                                             variant="outlined"
@@ -269,6 +282,43 @@ const Table_: React.FC<Props> = ({ childrenList }) => {
                         ))}
                     </TableBody>
                 </Table>
+                <Box className="flex justify-between items-center mt-4 mb-1">
+                    <button
+                        disabled={!hasPrev}
+                        onClick={() => onPageChange(page - 1)}
+                        className="
+      px-5 py-2 rounded-xl border
+      border-blue-300 text-blue-600
+      hover:bg-blue-50
+      disabled:border-gray-200
+      disabled:text-gray-400
+      disabled:bg-gray-50
+      disabled:cursor-not-allowed
+    "
+                    >
+                        ก่อนหน้า
+                    </button>
+
+                    <span className="text-sm text-gray-600">
+                        หน้า <b>{page}</b> / {Math.ceil(total / limit)}
+                    </span>
+
+                    <button
+                        disabled={!hasNext}
+                        onClick={() => onPageChange(page + 1)}
+                        className="
+      px-5 py-2 rounded-xl border
+      border-blue-300 text-blue-600
+      hover:bg-blue-50
+      disabled:border-gray-200
+      disabled:text-gray-400
+      disabled:bg-gray-50
+      disabled:cursor-not-allowed
+    "
+                    >
+                        ถัดไป
+                    </button>
+                </Box>
             </Box>
         </Card>
     );

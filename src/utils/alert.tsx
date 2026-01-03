@@ -17,3 +17,25 @@ export const showError = (title: string, text: string) => {
     confirmButtonColor: "#ef4444",
   });
 };
+
+export const showSuccessAuto = (
+  title: string,
+  text: string,
+  timer = 1500
+) => {
+  Swal.fire({
+    icon: "success",
+    title,
+    text,
+    showConfirmButton: false,
+    timer,
+    timerProgressBar: true,
+    iconColor: "#22c55e",  // green-500
+    customClass: {
+      popup: "rounded-xl shadow-lg",
+      title: "text-lg font-semibold",
+      htmlContainer: "text-sm",
+    },
+  });
+};
+

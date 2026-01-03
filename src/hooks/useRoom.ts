@@ -107,14 +107,25 @@ export const useUpdateRoom = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Room> & { staff_ids?: number[] } }) =>
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: FormData | (Partial<Room> & { staff_ids?: number[] });
+    }) =>
       updateById("room/api/v1/room", id, data),
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
       showSuccess("สำเร็จ", "ข้อมูลห้องถูกแก้ไขเรียบร้อยแล้ว");
     },
+
     onError: (err: AxiosError<DjangoError>) => {
-      showError("ผิดพลาด", err.response?.data?.detail || "ไม่สามารถแก้ไขห้องได้");
+      showError(
+        "ผิดพลาด",
+        err.response?.data?.detail || "ไม่สามารถแก้ไขห้องได้"
+      );
     },
   });
 };

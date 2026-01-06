@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { getAll } from "../helpers";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
-import { showError, showSuccessAuto } from "../utils/alert";
 import { validateForm } from "../utils/validate";
 
 type ModalProps = {

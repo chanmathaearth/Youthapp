@@ -72,12 +72,18 @@ const ResultPage = () => {
     const latest = (submissions ?? [])[(submissions?.length ?? 1) - 1];
 
     const latestHealthRecord = Array.isArray(healthRecords)
-        ? [...healthRecords].sort(
-              (a, b) =>
-                  new Date(b.created_at).getTime() -
-                  new Date(a.created_at).getTime()
-          )[0]
-        : null;
+    ? [...healthRecords]
+        .filter(
+            (r): r is typeof r & { created_at: string } =>
+            typeof r.created_at === "string"
+        )
+        .sort(
+            (a, b) =>
+            new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime()
+        )[0]
+    : null;
+
 
     const growthSummary =
         latestHealthRecord && childInfo
@@ -405,10 +411,14 @@ const ResultPage = () => {
                         <div className="p-6">
                             <div className="space-y-4">
                                 {submissions
+                                    .slice()
+                                    .sort(
+                                        (a, b) =>
+                                            new Date(a.created_at).getTime() -
+                                            new Date(b.created_at).getTime()
+                                    )
                                     .slice(0, 3)
-                                    .map((result, index) => {
-                                        const round = index + 1;
-
+                                    .map((result) => {
                                         return (
                                             <div
                                                 key={result.id}
@@ -416,7 +426,7 @@ const ResultPage = () => {
                                             >
                                                 <div>
                                                     <div className="font-medium text-gray-900">
-                                                        ครั้งที่ {round}
+                                                        ครั้งที่ {result.round}
                                                     </div>
                                                     <div className="text-sm text-gray-500">
                                                         {new Date(
@@ -476,6 +486,12 @@ const ResultPage = () => {
                         <div className="p-6">
                             <div className="space-y-4">
                                 {growthResults
+                                    .slice()
+                                    .sort(
+                                        (a, b) =>
+                                            new Date(a.created_at).getTime() -
+                                            new Date(b.created_at).getTime()
+                                    )
                                     .slice(0, 3)
                                     .map((result, index) => (
                                         <div

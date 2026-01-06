@@ -70,7 +70,6 @@ export const useAddRoom = (onClose?: () => void) => {
       minAge: number;
       maxAge: number;
       teacher: number[];
-      imageUrl?: string;
     }) => {
       const payload = {
         name: newRoom.name,

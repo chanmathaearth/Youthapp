@@ -478,6 +478,9 @@ const SettingsPage = () => {
         setEditImagePreview(null);
     };
 
+    const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
+
+
     return (
         <Box className="min-h-screen bg-gradient-to-br from-blue-50 to-sky-50">
             <Container maxWidth="xl" className="py-4">
@@ -1915,9 +1918,11 @@ const SettingsPage = () => {
                                         <Box className="aspect-video relative w-full p-4 bg-white">
                                             <img
                                                 src={
-                                                    room.image ??
-                                                    "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJlc2Nob29sfGVufDB8fDB8fHww"
+                                                room.image_url
+                                                    ? `${IMAGE_BASE_URL}${room.image_url}`
+                                                    : "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000"
                                                 }
+
                                                 alt={room.name}
                                                 className="object-cover w-full h-full rounded-t-xl"
                                             />

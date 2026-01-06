@@ -9,8 +9,9 @@ export interface HealthRecord {
   weight_kg: number | null;
   height_cm: number | null;
   remarks?: string;
-  created_at?: string;
+  created_at: string;
   updated_at?: string;
+  round?: number;
 }
 
 type DjangoError = {

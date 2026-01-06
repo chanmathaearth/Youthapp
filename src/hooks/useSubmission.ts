@@ -17,7 +17,7 @@ export interface Submission {
   total_items?: number;
   passed_items?: number;
   status_display?: string;
-  round_number?: number;
+  round?: number;
   status?: "ผ่าน" | "ไม่ผ่าน";
   remarks?: string;
 }

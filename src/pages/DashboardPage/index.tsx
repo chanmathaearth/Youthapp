@@ -39,7 +39,7 @@ export default function DashboardPage() {
 
     const { data: roomEvaluations = [] } = useRoomsDashboard();
     const { data: roomData = [] } = useDashboardRoomOverview();
-
+    console.log("RoomData", roomData)
     const selectedRoomData = roomEvaluations.find(
         (room: any) => room.id === selectedRoom
     );
@@ -53,6 +53,7 @@ export default function DashboardPage() {
         ) || [];
 
     const { data: HeaderData } = useDashboardOverview();
+    console.log("Header", HeaderData)
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50">

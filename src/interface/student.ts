@@ -14,4 +14,5 @@ export interface Student {
   created_at: string;
   updated_at: string;
   gender: string;
+  submission_count: number;
 }

@@ -45,29 +45,40 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
 }) => {
     const [showBasicGraph, setShowBasicGraph] = useState(false);
 
-    const ageKey = String(Math.round(ageInMonths));
+    const ageKey = String(ageInMonths) as keyof typeof growthReference[typeof gender]['HFA']
 
     const hfaAtAge = growthReference[gender]?.HFA?.[ageKey]; // ส่วนสูงตามอายุ
     const wfaAtAge = growthReference[gender]?.WFA?.[ageKey]; // น้ำหนักตามอายุ
     const wfhByHeight = growthReference[gender]?.WFH; // น้ำหนักตามส่วนสูง (key เป็นส่วนสูง)
 
-    const normalizeRanges = (ranges?: Record<string, [number, number]>) => {
-        if (!ranges) return undefined;
-        const out: Record<string, [number, number]> = {};
-        for (const [k, [min, max]] of Object.entries(ranges)) {
-            const hi = Number.isFinite(max as number)
-                ? (max as number)
-                : Number.POSITIVE_INFINITY;
-            out[k] = [min ?? 0, hi];
-        }
-        return out;
+    const normalizeRanges = (
+    ranges?: Record<string, number[]>
+    ): Record<string, [number, number]> | undefined => {
+    if (!ranges) return undefined;
+
+    const out: Record<string, [number, number]> = {};
+
+    for (const [k, arr] of Object.entries(ranges)) {
+        const min = arr?.[0] ?? 0;
+        const max = arr?.[1];
+
+        const hi = Number.isFinite(max)
+        ? max
+        : Number.POSITIVE_INFINITY;
+
+        out[k] = [min, hi];
+    }
+
+    return out;
     };
+
 
     const hfaRanges = normalizeRanges(hfaAtAge); // height categories by age
     const wfaRanges = normalizeRanges(wfaAtAge);
 
-    const hKey = Number(height || 0).toFixed(1);
+    const hKey = Number(height || 0).toFixed(1) as keyof typeof wfhByHeight;
     const wfhRanges = normalizeRanges(wfhByHeight?.[hKey]);
+
     useEffect(() => {
         if (!hfaRanges || !wfaRanges) {
             Swal.fire({
@@ -82,13 +93,16 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
     if (!hfaRanges || !wfaRanges) return null;
 
     const getRangeCategory = (
-        value: number,
-        ranges: Record<string, [number, number]>
-    ) => {
-        for (const [label, [min, max]] of Object.entries(ranges)) {
-            if (value >= min && value <= max) return label;
-        }
-        return "ไม่ทราบ";
+    value: number | null | undefined,
+    ranges?: Record<string, [number, number]>
+    ): string => {
+    if (value == null || !ranges) return "ไม่ทราบ";
+
+    for (const [label, [min, max]] of Object.entries(ranges)) {
+        if (value >= min && value <= max) return label;
+    }
+
+    return "ไม่ทราบ";
     };
 
     // สร้างข้อมูลสำหรับกราฟ (เอาค่ากลางช่วงเป็น reference)

@@ -52,7 +52,7 @@ const EvaluationPage = () => {
         nickname: s.nickname ?? "",
         age: dobFormat(s.birth),
         status: s.current_evaluation_status,
-        round: 1,
+        round: s.submission_count,
         date: s.updated_at
             ? new Date(s.updated_at).toLocaleDateString("th-TH")
             : "",

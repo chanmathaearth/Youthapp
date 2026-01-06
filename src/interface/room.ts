@@ -7,7 +7,7 @@ export interface Room {
   min_age: number;         // เดือน
   max_age: number;         // เดือน
   children_count: number;  // จำนวนนักเรียน
-  image?: string;
+  image_url?: string;
   rating?: number;
 }
 

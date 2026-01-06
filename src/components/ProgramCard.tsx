@@ -41,6 +41,8 @@ const Card: React.FC<CardProps> = ({
     const handleChoose = (room: string) => {
         navigate(`/rooms/${room}/evaluations`);
     };
+    const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
+
 
     const formatAgeRange = (min: number, max: number, t: TFunction): string => {
         const format = (months: number): string => {
@@ -58,6 +60,9 @@ const Card: React.FC<CardProps> = ({
     };
 
     const ageRangeText = formatAgeRange(minAge, maxAge, t);
+    const imageSrc = image
+        ? `${IMAGE_BASE_URL}${image}`
+        : "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJlc2Nob29sfGVufDB8fDB8fHww";
 
     return (
         <div className="group hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm hover:scale-105 overflow-hidden p-6 rounded-2xl overflow-y-auto">
@@ -65,7 +70,7 @@ const Card: React.FC<CardProps> = ({
                 <div className="aspect-video overflow-hidden relative w-full">
                     <img
                         className="rounded-2xl object-cover w-full h-full group-hover:scale-110 transition-all duration-300"
-                        src={image?? "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJlc2Nob29sfGVufDB8fDB8fHww"}
+                        src={imageSrc}
                         alt={name}
                     />
                 </div>

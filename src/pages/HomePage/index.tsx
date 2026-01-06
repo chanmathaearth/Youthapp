@@ -36,7 +36,7 @@ const HomePage = () => {
                                 minAge={program.min_age}
                                 maxAge={program.max_age}         
                                 childrenCount={program.children_count}
-                                image={program.image}                                />
+                                image={program.image_url}                                />
                         ))}
                     </div>
                 </main>

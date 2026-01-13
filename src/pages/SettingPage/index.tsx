@@ -338,7 +338,7 @@ const SettingsPage = () => {
     const handleUpdateUser = () => {
         if (!UpdateUser) return; // ต้องมี id จาก user เดิม
         if (!editUserForm) return;
-
+        console.log(editUserForm)
         updateUser({
             id: UpdateUser.id, // ใช้ id จาก object เดิม
             data: {
@@ -383,7 +383,6 @@ const SettingsPage = () => {
     const { data: users = [] } = useUsers();
     const { data: editUserData } = useUserById(UpdateUser?.id);
     const { data: rooms = [] } = useRooms();
-    console.log(rooms);
     const { data: editRoomData } = useRoomById(editRoomId ?? undefined);
     const [page, setPage] = useState(1);
     const limit = 3;
@@ -1520,9 +1519,6 @@ const SettingsPage = () => {
                                             >
                                                 <option value="teacher">
                                                     ครู
-                                                </option>
-                                                <option value="staff">
-                                                    เจ้าหน้าที่
                                                 </option>
                                                 <option value="admin">
                                                     ผู้ดูแลระบบ

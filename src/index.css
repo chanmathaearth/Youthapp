@@ -17,3 +17,15 @@
 html, body {
   height: 100%;
 }
+
+/* Chrome, Edge, Safari */
+input[type="number"].no-spinner::-webkit-inner-spin-button,
+input[type="number"].no-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Firefox */
+input[type="number"].no-spinner {
+  -moz-appearance: textfield !important;
+}

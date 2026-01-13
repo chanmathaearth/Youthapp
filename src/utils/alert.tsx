@@ -39,3 +39,19 @@ export const showSuccessAuto = (
   });
 };
 
+export const showConfirm = (title: string, html: string) => {
+  return Swal.fire({
+    icon: "question",
+    title,
+    html,
+    confirmButtonText: "ตรวจสอบแล้ว",
+    cancelButtonText: "ยังไม่ได้ตรวจสอบ",
+    showCancelButton: true,
+    reverseButtons: true,
+    confirmButtonColor: "#10b981",
+    cancelButtonColor: "#9ca3af",
+    iconColor: "#3b82f6",
+
+  });
+};
+

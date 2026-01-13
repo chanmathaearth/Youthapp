@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
-import { getAll, postBody } from "../helpers";
+import { getAll, postBody, updateById } from "../helpers";
 import type { AxiosError } from "axios";
 import { showError, showSuccess } from "../utils/alert";
 
@@ -17,6 +17,11 @@ export interface HealthRecord {
 type DjangoError = {
     detail?: string;
     [key: string]: string[] | string | undefined;
+};
+
+type UpdateHealthRecordVariables = {
+  id: number;
+  data: Partial<Pick<HealthRecord, "weight_kg" | "height_cm" | "remarks">>;
 };
 
 export const useHealthRecordsByChild = (childId?: number) => {
@@ -81,6 +86,50 @@ export const useCreateHealthRecord = () => {
       }
 
       showError("บันทึกข้อมูลสุขภาพไม่สำเร็จ", message);
+    },
+  };
+
+  return useMutation(options);
+};
+
+export const useUpdateHealthRecord = () => {
+  const queryClient = useQueryClient();
+
+  const options: UseMutationOptions<
+    HealthRecord,                   // response
+    AxiosError<DjangoError>,        // error
+    UpdateHealthRecordVariables     // variables
+  > = {
+    mutationFn: async ({ id, data }) =>
+      await updateById(
+        "development/api/v1/health-record",
+        id,
+        data
+      ),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["health-records"] });
+      showSuccess(
+      "บันทึกข้อมูลสำเร็จ",
+      "ระบบได้อัปเดตข้อมูลสุขภาพเรียบร้อยแล้ว"
+      );
+    },
+
+    onError: (err) => {
+      const data = err.response?.data;
+      let message = "เกิดข้อผิดพลาดจากระบบ";
+
+      if (data?.detail) {
+        message = data.detail;
+      } else if (typeof data === "object") {
+        message = Object.entries(data)
+          .map(([field, msgs]) =>
+            `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
+          )
+          .join("\n");
+      }
+
+      showError("อัปเดตข้อมูลสุขภาพไม่สำเร็จ", message);
     },
   };
 

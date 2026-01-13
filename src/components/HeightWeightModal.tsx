@@ -107,17 +107,22 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
 
     // สร้างข้อมูลสำหรับกราฟ (เอาค่ากลางช่วงเป็น reference)
     const chartDataFromRanges = (
-        ranges: Record<string, [number, number]>,
-        value: number,
-        matchedCategory: string
-    ) =>
-        Object.entries(ranges).map(([label, [min, max]]) => ({
-            category: label,
-            reference:
-                (min + (Number.isFinite(max) ? max : min)) /
-                (Number.isFinite(max) ? 2 : 1),
-            actual: label === matchedCategory ? value : 0,
-        }));
+  ranges: Record<string, [number, number]>,
+  value: number,
+  matchedCategory: string
+) =>
+  Object.entries(ranges).map(([label, [min, max]]) => {
+    const referenceRaw =
+      (min + (Number.isFinite(max) ? max : min)) /
+      (Number.isFinite(max) ? 2 : 1);
+
+    return {
+      category: label,
+      reference: Number(referenceRaw.toFixed(2)), // 👈 จำกัด 2 ตำแหน่ง
+      actual: label === matchedCategory ? value : 0,
+    };
+  });
+
 
     // เลือกหมวดหมู่
     const weightCategory = getRangeCategory(weight, wfaRanges);
@@ -1189,51 +1194,64 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                 <h5 className="text-center font-bold text-gray-800 mb-3">
                                     🔍 คำอธิบายสัญลักษณ์
                                 </h5>
-                                <div className="grid grid-cols-4 gap-y-2 text-sm w-full max-w-4xl mx-auto">
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-[#F7A039] rounded shadow-sm"></div>
+<div className="
+  grid
+  grid-cols-1
+  sm:grid-cols-2
+  md:grid-cols-3
+  lg:grid-cols-4
+  gap-y-2
+  gap-x-4
+  text-sm
+  w-full
+  max-w-8xl
+  mx-auto
+">
+
+                                    <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
+                                        <div className="w-4 h-4 bg-[#F7A039] rounded shadow-sm border"></div>
                                         <span className="font-medium">
                                             เตี้ย/น้ำหนักน้อย/ผอม
                                         </span>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-[#D7F2CE] rounded shadow-sm"></div>
+                                    <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
+                                        <div className="w-4 h-4 bg-[#D7F2CE] rounded shadow-sm border"></div>
                                         <span className="font-medium">
                                             ค่อนข้างเตี้ย/น้ำหนักค่อนข้างน้อย/ค่อนข้างผอม
                                         </span>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-[#9EE683] rounded shadow-sm"></div>
+                                    <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
+                                        <div className="w-4 h-4 bg-[#9EE683] rounded shadow-sm border"></div>
                                         <span className="font-medium">
                                             ปกติ/สมส่วน
                                         </span>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-[#61B846] rounded shadow-sm"></div>
+                                    <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
+                                        <div className="w-4 h-4 bg-[#61B846] rounded shadow-sm border"></div>
                                         <span className="font-medium">
                                             ค่อนข้างสูง/น้ำหนักค่อนข้างมาก/ท้วม
                                         </span>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-[#FCD9FF] rounded shadow-sm"></div>
+                                    <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
+                                        <div className="w-4 h-4 bg-[#FCD9FF] rounded shadow-sm border"></div>
                                         <span className="font-medium">
                                             เริ่มอ้วน
                                         </span>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-[#D4A6DE] rounded shadow-sm"></div>
+                                    <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
+                                        <div className="w-4 h-4 bg-[#D4A6DE] rounded shadow-sm border"></div>
                                         <span className="font-medium">
                                             อ้วน
                                         </span>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-white rounded shadow-sm"></div>
+                                    <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
+                                        <div className="w-4 h-4 bg-white rounded shadow-sm border"></div>
                                         <span className="font-medium">
                                             สูง/น้ำหนักมาก
                                         </span>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-red-600 rounded-full border border-white shadow-sm"></div>
+                                    <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
+                                        <div className="w-4 h-4 bg-red-600 rounded-full border border shadow-sm"></div>
                                         <span className="font-medium">
                                             ตำแหน่งเด็ก
                                         </span>

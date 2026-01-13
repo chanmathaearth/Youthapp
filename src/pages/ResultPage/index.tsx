@@ -69,8 +69,7 @@ const ResultPage = () => {
     const { data: healthRecords } = useHealthRecordsByChild(Number(childId));
 
     const { data: submissions = [] } = useSubmissionsByChild(Number(childId));
-    const latest = (submissions ?? [])[(submissions?.length ?? 1) - 1];
-
+    const latest = submissions?.at(0)
     const latestHealthRecord = Array.isArray(healthRecords)
     ? [...healthRecords]
         .filter(
@@ -83,6 +82,7 @@ const ResultPage = () => {
             new Date(a.created_at).getTime()
         )[0]
     : null;
+
 
 
     const growthSummary =
@@ -141,17 +141,19 @@ const ResultPage = () => {
                 );
                 return date1 === date2;
             });
-            const assessmentResult = matchedSubmission
-                ? matchedSubmission.status === "pass"
+
+            const assessmentResult =
+                matchedSubmission?.status_display === "ผ่าน"
                     ? "ผ่าน"
-                    : "ไม่ผ่าน"
-                : "-";
+                    : "ไม่ผ่าน";
+            console.log(healthRecords)
 
             return {
                 วันที่ประเมิน: new Date(record.created_at).toLocaleDateString(
                     "th-TH"
                 ),
                 อายุ: ageText,
+                ครั้งที่: record.round,
                 ผลการประเมิน: assessmentResult,
                 น้ำหนัก: `${parseFloat(record.weight_kg)} กก.`,
                 ส่วนสูง: `${parseFloat(record.height_cm)} ซม.`,
@@ -402,7 +404,7 @@ const ResultPage = () => {
                             <div>
                                 <button
                                     onClick={() => handlePOpen()}
-                                    className="px-4 py-1 bg-slate-300 text-md text-white rounded-xl whitespace-nowrap"
+                                    className="px-4 py-1 bg-blue-500 text-md text-white rounded-xl whitespace-nowrap"
                                 >
                                     ดูประวัติ
                                 </button>
@@ -471,7 +473,7 @@ const ResultPage = () => {
                             <div className="flex whitespace-nowrap">
                                 <button
                                     onClick={() => handleGrowthHOpen()}
-                                    className="px-4 py-1 bg-slate-300 text-md text-white rounded-xl mr-2"
+                                    className="px-4 py-1 bg-blue-500 text-md text-white rounded-xl mr-2"
                                 >
                                     ดูประวัติ
                                 </button>

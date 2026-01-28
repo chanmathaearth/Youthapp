@@ -338,7 +338,6 @@ const SettingsPage = () => {
     const handleUpdateUser = () => {
         if (!UpdateUser) return; // ต้องมี id จาก user เดิม
         if (!editUserForm) return;
-        console.log(editUserForm)
         updateUser({
             id: UpdateUser.id, // ใช้ id จาก object เดิม
             data: {

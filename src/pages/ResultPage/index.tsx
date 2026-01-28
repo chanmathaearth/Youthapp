@@ -146,8 +146,6 @@ const ResultPage = () => {
                 matchedSubmission?.status_display === "ผ่าน"
                     ? "ผ่าน"
                     : "ไม่ผ่าน";
-            console.log(healthRecords)
-
             return {
                 วันที่ประเมิน: new Date(record.created_at).toLocaleDateString(
                     "th-TH"

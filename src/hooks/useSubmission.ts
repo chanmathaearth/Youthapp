@@ -2,25 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAll, getById } from "../helpers";
 import type { AxiosError } from "axios";
 import { showError } from "../utils/alert";
-
-export interface SubmissionAnswer {
-  questionnaire_item: number;
-  answer: boolean;
-}
-
-export interface Submission {
-  id: number;
-  children: number;
-  questionnaire: number;
-  created_at: string;
-  answers?: SubmissionAnswer[];
-  total_items?: number;
-  passed_items?: number;
-  status_display?: string;
-  round?: number;
-  status?: "ผ่าน" | "ไม่ผ่าน";
-  remarks?: string;
-}
+import type { Submission } from "../interface/submission.types";
 
 type DjangoError = {
   detail?: string;
@@ -61,9 +43,6 @@ export const useSubmissionsByChild = (childId?: number) => {
   return query;
 };
 
-/**
- * ✅ ดึงรายละเอียดผลการประเมินแต่ละครั้ง
- */
 export const useSubmissionDetail = (id?: number) => {
   const query = useQuery<Submission, AxiosError<DjangoError>>({
     queryKey: ["submission-detail", id],

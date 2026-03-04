@@ -14,9 +14,10 @@ interface GrowthInput {
 type GrowthRef = Record<string, Record<string, [number, number]>>;
 type GrowthData = Record<Gender, GrowthRef>;
 
-const wfa = wfaData as GrowthData;
-const hfa = hfaData as GrowthData;
-const wfh = wfhData as GrowthData;
+const wfa = wfaData as unknown as GrowthData;
+const hfa = hfaData as unknown as GrowthData;
+const wfh = wfhData as unknown as GrowthData;
+
 
 export const evaluateGrowth = ({ gender, ageMonth, weight, height }: GrowthInput) => {
   const wfaGenderData = wfa[gender];

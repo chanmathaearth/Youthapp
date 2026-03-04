@@ -39,6 +39,7 @@ export default function DashboardPage() {
 
     const { data: roomEvaluations = [] } = useRoomsDashboard();
     const { data: roomData = [] } = useDashboardRoomOverview();
+    console.log(roomData)
     const selectedRoomData = roomEvaluations.find(
         (room: any) => room.id === selectedRoom
     );

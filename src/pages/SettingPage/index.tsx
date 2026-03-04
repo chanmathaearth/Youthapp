@@ -66,9 +66,9 @@ import { confirmDelete } from "../../utils/confirmDelete";
 import { validateForm } from "../../utils/validate";
 
 //interface
-import type { User } from "../../interface/user";
-import type { Student } from "../../interface/student";
+import type { Student } from "../../interface/student.types";
 import { getRole } from "../../utils/authen";
+import type { User } from "../../interface/user.types";
 
 type Role = "admin" | "teacher";
 
@@ -477,7 +477,6 @@ const SettingsPage = () => {
     };
 
     const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
-
 
     return (
         <Box className="min-h-screen bg-gradient-to-br from-blue-50 to-sky-50">
@@ -1913,11 +1912,10 @@ const SettingsPage = () => {
                                         <Box className="aspect-video relative w-full p-4 bg-white">
                                             <img
                                                 src={
-                                                room.image_url
-                                                    ? `${IMAGE_BASE_URL}${room.image_url}`
-                                                    : "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000"
+                                                    room.image_url
+                                                        ? `${IMAGE_BASE_URL}${room.image_url}`
+                                                        : "https://plus.unsplash.com/premium_photo-1663106423058-c5242333348c?fm=jpg&q=60&w=3000"
                                                 }
-
                                                 alt={room.name}
                                                 className="object-cover w-full h-full rounded-t-xl"
                                             />

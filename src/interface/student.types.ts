@@ -1,4 +1,4 @@
-import type { Room } from "./room";
+import type { Room } from "./room.types";
 
 export interface Student {
   id: number;

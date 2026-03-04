@@ -301,6 +301,9 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
         return "text-gray-500";
     };
 
+    const isMobile = window.innerWidth < 640;
+
+
     return (
         <Box
             sx={{
@@ -413,26 +416,27 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                 <h3 className="text-2xl font-bold text-gray-800 mb-2">
                                     กราฟมาตรฐานการเจริญเติบโต
                                 </h3>
-                                <div className="flex justify-center space-x-8 text-sm">
-                                    <div className="bg-blue-50 px-4 py-2 rounded-full border border-blue-200">
-                                        <span className="text-blue-700 font-medium">
-                                            ส่วนสูง: {height} ซม. (
-                                            {heightCategory})
-                                        </span>
-                                    </div>
-                                    <div className="bg-purple-50 px-4 py-2 rounded-full border border-purple-200">
-                                        <span className="text-purple-700 font-medium">
-                                            น้ำหนัก: {weight} กก. (
-                                            {weightCategory})
-                                        </span>
-                                    </div>
-                                    <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200">
-                                        <span className="text-pink-700 font-medium">
-                                            น้ำหนักตามส่วนสูง: {weight} กก. (
-                                            {weightForHeightCategory})
-                                        </span>
-                                    </div>
-                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+
+  <div className="bg-blue-50 px-4 py-2 rounded-full border border-blue-200 text-center">
+    <span className="text-blue-700 font-medium">
+      ส่วนสูง: {height} ซม. ({heightCategory})
+    </span>
+  </div>
+
+  <div className="bg-purple-50 px-4 py-2 rounded-full border border-purple-200 text-center">
+    <span className="text-purple-700 font-medium">
+      น้ำหนัก: {weight} กก. ({weightCategory})
+    </span>
+  </div>
+
+  <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200 text-center">
+    <span className="text-pink-700 font-medium">
+      น้ำหนักตามส่วนสูง: {weight} กก. ({weightForHeightCategory})
+    </span>
+  </div>
+
+</div>
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -450,11 +454,14 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                         </p>
                                     </div>
 
-                                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-2">
-                                        <ResponsiveContainer
+                                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-2 mb-3">
+                                        <p className="text-xs text-gray-500 font-bold ml-3 mt-1">ส่วนสูง (ซม.)</p>                                        
+
+<ResponsiveContainer
                                             width="100%"
                                             height={350}
                                         >
+                                            
                                             <AreaChart
                                                 data={convertHeightData(
                                                     growthReference,
@@ -463,7 +470,7 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                 margin={{
                                                     top: 20,
                                                     right: 30,
-                                                    left: 20,
+                                                    left: -20,
                                                     bottom: 60,
                                                 }}
                                             >
@@ -581,17 +588,6 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                         stroke: "#6b7280",
                                                         strokeWidth: 2,
                                                     }}
-                                                    label={{
-                                                        value: "ส่วนสูง (ซม.)",
-                                                        angle: -90,
-                                                        position: "insideLeft",
-                                                        style: {
-                                                            textAnchor:
-                                                                "middle",
-                                                            fontSize: "12px",
-                                                            fontWeight: "bold",
-                                                        },
-                                                    }}
                                                 />
 
                                                 <CartesianGrid
@@ -698,6 +694,8 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                     </div>
 
                                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-2">
+                                                                                <p className="text-xs text-gray-500 font-bold ml-3 mt-1">น้ำหนัก (กก.)</p>                                        
+
                                         <ResponsiveContainer
                                             width="100%"
                                             height={350}
@@ -710,7 +708,7 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                 margin={{
                                                     top: 20,
                                                     right: 30,
-                                                    left: 20,
+                                                    left: -20,
                                                     bottom: 60,
                                                 }}
                                             >
@@ -828,17 +826,7 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                         stroke: "#6b7280",
                                                         strokeWidth: 2,
                                                     }}
-                                                    label={{
-                                                        value: "น้ำหนัก (กก.)",
-                                                        angle: -90,
-                                                        position: "insideLeft",
-                                                        style: {
-                                                            textAnchor:
-                                                                "middle",
-                                                            fontSize: "12px",
-                                                            fontWeight: "bold",
-                                                        },
-                                                    }}
+
                                                 />
 
                                                 <CartesianGrid
@@ -945,6 +933,8 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                     </div>
 
                                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-2">
+                                                                                                                        <p className="text-xs text-gray-500 font-bold ml-3 mt-1">น้ำหนัก (กก.)</p>                                        
+
                                         <ResponsiveContainer
                                             width="100%"
                                             height={350}
@@ -957,8 +947,8 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                 margin={{
                                                     top: 20,
                                                     right: 30,
-                                                    left: 20,
                                                     bottom: 60,
+                                                    left: -20
                                                 }}
                                             >
                                                 <Tooltip
@@ -1075,17 +1065,6 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                                     axisLine={{
                                                         stroke: "#6b7280",
                                                         strokeWidth: 2,
-                                                    }}
-                                                    label={{
-                                                        value: "น้ำหนัก (กก.)",
-                                                        angle: -90,
-                                                        position: "insideLeft",
-                                                        style: {
-                                                            textAnchor:
-                                                                "middle",
-                                                            fontSize: "12px",
-                                                            fontWeight: "bold",
-                                                        },
                                                     }}
                                                 />
 
@@ -1267,26 +1246,28 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                 <h3 className="text-2xl font-bold text-gray-800 mb-2">
                                     กราฟมาตรฐานการเจริญเติบโต
                                 </h3>
-                                <div className="flex justify-center space-x-8 text-sm">
-                                    <div className="bg-blue-50 px-4 py-2 rounded-full border border-blue-200">
-                                        <span className="text-blue-700 font-medium">
-                                            ส่วนสูง: {height} ซม. (
-                                            {heightCategory})
-                                        </span>
-                                    </div>
-                                    <div className="bg-purple-50 px-4 py-2 rounded-full border border-purple-200">
-                                        <span className="text-purple-700 font-medium">
-                                            น้ำหนัก: {weight} กก. (
-                                            {weightCategory})
-                                        </span>
-                                    </div>
-                                    <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200">
-                                        <span className="text-pink-700 font-medium">
-                                            น้ำหนักตามส่วนสูง: {weight} กก. (
-                                            {weightForHeightCategory})
-                                        </span>
-                                    </div>
-                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+
+  <div className="bg-blue-50 px-4 py-2 rounded-full border border-blue-200 text-center">
+    <span className="text-blue-700 font-medium">
+      ส่วนสูง: {height} ซม. ({heightCategory})
+    </span>
+  </div>
+
+  <div className="bg-purple-50 px-4 py-2 rounded-full border border-purple-200 text-center">
+    <span className="text-purple-700 font-medium">
+      น้ำหนัก: {weight} กก. ({weightCategory})
+    </span>
+  </div>
+
+  <div className="bg-pink-50 px-4 py-2 rounded-full border border-pink-200 text-center">
+    <span className="text-pink-700 font-medium">
+      น้ำหนักตามส่วนสูง: {weight} กก. ({weightForHeightCategory})
+    </span>
+  </div>
+
+</div>
+
                             </div>{" "}
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 {/* กราฟส่วนสูง */}

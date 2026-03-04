@@ -1,4 +1,4 @@
-import type { Student } from "../interface/student";
+import type { Student } from "../interface/student.types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     getAll,

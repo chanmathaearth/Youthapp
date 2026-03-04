@@ -1,12 +1,12 @@
-import type { Teacher } from "./teacher";
+import type { Teacher } from "./teacher.types";
 
 export interface Room {
   id: number;
   name: string;
   teachers: Teacher[];
-  min_age: number;         // เดือน
-  max_age: number;         // เดือน
-  children_count: number;  // จำนวนนักเรียน
+  min_age: number;
+  max_age: number;
+  children_count: number;
   image_url?: string;
   rating?: number;
 }
@@ -20,6 +20,6 @@ export interface CreateRoomDto {
   name: string;
   minAge: number;
   maxAge: number;
-  teacher: number[];   // ส่ง id ของ staff
+  teacher: number[];
   imageUrl?: string;
 }

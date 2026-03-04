@@ -1,25 +1,16 @@
+import type { AxiosError } from "axios";
+import type { HealthRecord } from "../interface/healthRecord.types";
+
 import { useMutation, useQuery, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { getAll, postBody, updateById } from "../helpers";
-import type { AxiosError } from "axios";
 import { showError, showSuccess } from "../utils/alert";
-
-export interface HealthRecord {
-  id: number;
-  child: number;
-  weight_kg: number | null;
-  height_cm: number | null;
-  remarks?: string;
-  created_at: string;
-  updated_at?: string;
-  round?: number;
-}
 
 type DjangoError = {
     detail?: string;
     [key: string]: string[] | string | undefined;
 };
 
-type UpdateHealthRecordVariables = {
+type UpdateHealthRecord = {
   id: number;
   data: Partial<Pick<HealthRecord, "weight_kg" | "height_cm" | "remarks">>;
 };
@@ -98,7 +89,7 @@ export const useUpdateHealthRecord = () => {
   const options: UseMutationOptions<
     HealthRecord,                   // response
     AxiosError<DjangoError>,        // error
-    UpdateHealthRecordVariables     // variables
+    UpdateHealthRecord     // variables
   > = {
     mutationFn: async ({ id, data }) =>
       await updateById(

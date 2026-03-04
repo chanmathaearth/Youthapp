@@ -11,7 +11,8 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import HeightWeightModal from "../../components/HeightWeightModal";
 import GrowthHistoryModal from "../../components/GrowthHistoryModal";
-import PotentialModal from "../../components/PotentialHistoryModal";
+import PotentialModal from "../../components/PotentialModal";
+import PotentialHistoryModal from "../../components/PotentialHistoryModal";
 import { useState } from "react";
 import { exportToExcel } from "../../utils/exportExcel";
 import { useStudentById } from "../../hooks/useStudent";
@@ -48,42 +49,46 @@ const getStatusBadge = (status: "ผ่าน" | "ไม่ผ่าน") => {
     );
 };
 const ResultPage = () => {
-    const [openHW, setOpenHW] = useState(false);
-    const [openP, setOpenP] = useState(false);
-    const handlePOpen = () => setOpenP(true);
-    const handleHWOpen = () => setOpenHW(true);
+    const [openHeightWeightModal, setOpenHeightWeightModal] = useState(false);
+    const [openPotentialModal, setOpenPotentialModal] = useState(false);
+    const [openPotentialHistory, setOpenPotentialHistory] = useState(false);
+    const handlePHOpen = () => setOpenPotentialHistory(true);
+    const handleHWOpen = () => setOpenHeightWeightModal(true);
+    const handlePMOpen = () => setOpenPotentialModal(true);
+
     const handleGrowthHOpen = () => setOpenHGrowth(true);
     const [openGrowthH, setOpenHGrowth] = useState(false);
 
     const handleHWClose = () => {
-        setOpenHW(false);
+        setOpenHeightWeightModal(false);
     };
 
     const handlePClose = () => {
-        setOpenP(false);
+        setOpenPotentialHistory(false);
+    };
+
+    const handlePMClose = () => {
+        setOpenPotentialModal(false);
     };
 
     const { childId } = useParams<{ roomId: string; childId: string }>();
 
     const { data: childInfo } = useStudentById(Number(childId));
     const { data: healthRecords } = useHealthRecordsByChild(Number(childId));
-
     const { data: submissions = [] } = useSubmissionsByChild(Number(childId));
-    const latest = submissions?.at(0)
+    const latest = submissions?.at(0);
     const latestHealthRecord = Array.isArray(healthRecords)
-    ? [...healthRecords]
-        .filter(
-            (r): r is typeof r & { created_at: string } =>
-            typeof r.created_at === "string"
-        )
-        .sort(
-            (a, b) =>
-            new Date(b.created_at).getTime() -
-            new Date(a.created_at).getTime()
-        )[0]
-    : null;
-
-
+        ? [...healthRecords]
+              .filter(
+                  (r): r is typeof r & { created_at: string } =>
+                      typeof r.created_at === "string"
+              )
+              .sort(
+                  (a, b) =>
+                      new Date(b.created_at).getTime() -
+                      new Date(a.created_at).getTime()
+              )[0]
+        : null;
 
     const growthSummary =
         latestHealthRecord && childInfo
@@ -97,103 +102,116 @@ const ResultPage = () => {
                   growthResult: evaluateGrowth({
                       gender: childInfo?.gender,
                       ageMonth: calculateAgeInMonths(childInfo?.birth),
-                      weight: parseFloat(latestHealthRecord.weight_kg),
-                      height: parseFloat(latestHealthRecord.height_cm),
+                      weight: latestHealthRecord.weight_kg ?? 0,
+                      height: latestHealthRecord.height_cm ?? 0,
                   }),
                   weight: latestHealthRecord.weight_kg,
                   height: latestHealthRecord.height_cm,
               }
             : null;
 
-    const growthResults =
-        healthRecords?.map((record) => ({
-            round: record.round,
-            date: new Date(record.created_at).toLocaleDateString("th-TH"),
-            weight: parseFloat(record.weight_kg),
-            height: parseFloat(record.height_cm),
-            remarks: record.remarks,
-            growthResult: evaluateGrowth({
-                gender: childInfo?.gender,
-                ageMonth: calculateAgeInMonths(childInfo?.birth),
-                weight: parseFloat(record.weight_kg),
-                height: parseFloat(record.height_cm),
-            }),
-        })) || [];
+    const growthResults = healthRecords?.map((record) => ({
+        round: record.round,
+        date: new Date(record.created_at ?? "").toLocaleDateString("th-TH"),
+        weight: record.weight_kg,
+        height: record.height_cm,
+        remarks: record.remarks,
+        updatedby:
+            record.create_by_detail?.first_name +
+            " " +
+            record.create_by_detail?.last_name,
+        growthResult: evaluateGrowth({
+            gender: childInfo?.gender,
+            ageMonth: calculateAgeInMonths(childInfo?.birth),
+            weight: record.weight_kg ?? 0,
+            height: record.height_cm ?? 0,
+        }),
+    }));
 
-    const exportData =
-        (healthRecords ?? []).map((record) => {
-            const ageMonth = calculateAgeInMonths(childInfo?.birth);
-            const ageText = dobFormat(childInfo?.birth);
-            const growth = evaluateGrowth({
-                gender: childInfo?.gender,
-                ageMonth,
-                weight: parseFloat(record.weight_kg),
-                height: parseFloat(record.height_cm),
-            });
+    const exportData = (healthRecords ?? []).map((record) => {
+        const ageMonth = calculateAgeInMonths(childInfo?.birth);
+        const ageText = dobFormat(childInfo?.birth);
+        const growth = evaluateGrowth({
+            gender: childInfo?.gender,
+            ageMonth,
+            weight: record.weight_kg ?? 0,
+            height: record.height_cm ?? 0,
+        });
 
-            // หาผลการประเมินจาก submission (ถ้ามี)
-            const matchedSubmission = submissions?.find((s) => {
-                const date1 = new Date(s.created_at).toLocaleDateString(
-                    "th-TH"
-                );
-                const date2 = new Date(record.created_at).toLocaleDateString(
-                    "th-TH"
-                );
-                return date1 === date2;
-            });
+        // หาผลการประเมินจาก submission (ถ้ามี)
+        const matchedSubmission = submissions?.find((s) => {
+            const date1 = new Date(s.created_at).toLocaleDateString("th-TH");
+            const date2 = new Date(record.created_at ?? "").toLocaleDateString(
+                "th-TH"
+            );
+            return date1 === date2;
+        });
 
-            const assessmentResult =
-                matchedSubmission?.status_display === "ผ่าน"
-                    ? "ผ่าน"
-                    : "ไม่ผ่าน";
-            return {
-                วันที่ประเมิน: new Date(record.created_at).toLocaleDateString(
-                    "th-TH"
-                ),
-                อายุ: ageText,
-                ครั้งที่: record.round,
-                ผลการประเมิน: assessmentResult,
-                น้ำหนัก: `${parseFloat(record.weight_kg)} กก.`,
-                ส่วนสูง: `${parseFloat(record.height_cm)} ซม.`,
-                เกณฑ์น้ำหนัก: growth.weightResult,
-                เกณฑ์ส่วนสูง: growth.heightResult,
-                เกณฑ์น้ำหนักตามส่วนสูง: growth.weightHeightResult,
-            };
-        }) || [];
+        const assessmentResult =
+            matchedSubmission?.status_display === "ผ่าน" ? "ผ่าน" : "ไม่ผ่าน";
+        return {
+            วันที่ประเมิน: new Date(record.created_at ?? "").toLocaleDateString(
+                "th-TH"
+            ),
+            อายุ: ageText,
+            ครั้งที่: record.round,
+            ผลการประเมิน: assessmentResult,
+            น้ำหนัก: `${record.weight_kg} กก.`,
+            ส่วนสูง: `${record.height_cm} ซม.`,
+            เกณฑ์น้ำหนัก: growth.weightResult,
+            เกณฑ์ส่วนสูง: growth.heightResult,
+            เกณฑ์น้ำหนักตามส่วนสูง: growth.weightHeightResult,
+        };
+    });
 
     const navigate = useNavigate();
 
     return (
         <div className="min-h-screen bg-gradient-to-r from-blue-50 via-sky-50 to bg-cyan-50 font-poppins">
-            {openHW && (
+            {openHeightWeightModal && (
                 <HeightWeightModal
                     message="กราฟการเจริญเติบโต"
                     name={childInfo?.nickname}
-                    ageInMonths={growthSummary?.ageMonth}
-                    height={growthSummary?.height}
-                    weight={growthSummary?.weight}
+                    ageInMonths={growthSummary?.ageMonth ?? 0}
+                    height={growthSummary?.height ?? 0}
+                    weight={growthSummary?.weight ?? 0}
                     gender={growthSummary?.gender}
                     onClose={handleHWClose}
                 />
             )}
-            {openP && <PotentialModal onClose={handlePClose} />}
+            {openPotentialModal && (
+                <PotentialModal
+                    name={childInfo?.nickname}
+                    message="ผลการประเมินพัฒนาการ"
+                    ageInMonths={growthSummary?.ageMonth ?? 0}
+                    gender={growthSummary?.gender}
+                    summary={latest?.summary_by_type ?? []}
+                    onClose={handlePMClose}
+                />
+            )}
+            {openPotentialHistory && (
+                <PotentialHistoryModal 
+                    submissions={submissions}
+                    childInfo={childInfo}
+                    onClose={handlePClose} 
+                />
+            )}
             {openGrowthH && (
                 <GrowthHistoryModal
                     onClose={() => setOpenHGrowth(false)}
-                    records={
-                        healthRecords.map((r) => ({
-                            ...r,
-                            ageMonth: calculateAgeInMonths(childInfo?.birth),
-                            birth: childInfo?.birth,
+                    records={(healthRecords ?? []).map((r) => ({
+                        ...r,
+                        ageMonth: calculateAgeInMonths(childInfo?.birth),
+                        birth: childInfo?.birth,
+                        gender: childInfo?.gender,
+                        updatedby: r.create_by_detail?.first_name+" "+r.create_by_detail?.last_name,
+                        growthResult: evaluateGrowth({
                             gender: childInfo?.gender,
-                            growthResult: evaluateGrowth({
-                                gender: childInfo?.gender,
-                                ageMonth: calculateAgeInMonths(childInfo?.birth),
-                                weight: parseFloat(r.weight_kg),
-                                height: parseFloat(r.height_cm),
-                            }),
-                        })) || []
-                    }
+                            ageMonth: calculateAgeInMonths(childInfo?.birth),
+                            weight: r.weight_kg ?? 0,
+                            height: r.height_cm ?? 0,
+                        }),
+                    }))}
                 />
             )}
             <div className="shadow-sm p-4 sticky top-0 z-10 bg-white/80 border-b border-slate-200">
@@ -399,12 +417,18 @@ const ResultPage = () => {
                                     ประวัติการประเมินพัฒนาการ
                                 </span>
                             </div>
-                            <div>
+                            <div className="flex whitespace-nowrap">
                                 <button
-                                    onClick={() => handlePOpen()}
-                                    className="px-4 py-1 bg-blue-500 text-md text-white rounded-xl whitespace-nowrap"
+                                    onClick={() => handlePHOpen()}
+                                    className="px-4 py-1 bg-blue-500 text-md text-white rounded-xl whitespace-nowrap mr-2"
                                 >
                                     ดูประวัติ
+                                </button>
+                                <button
+                                    onClick={() => handlePMOpen()}
+                                    className="px-4 py-1 bg-green-500 text-md text-white rounded-xl"
+                                >
+                                    ดูกราฟ
                                 </button>
                             </div>
                         </div>
@@ -435,6 +459,23 @@ const ResultPage = () => {
                                                             "th-TH"
                                                         )}
                                                     </div>
+
+                                                    {result.submitted_by_detail
+                                                        ?.first_name && (
+                                                        <div className="text-sm text-gray-500">
+                                                            ประเมินโดยคุณ{" "}
+                                                            {
+                                                                result
+                                                                    .submitted_by_detail
+                                                                    .first_name
+                                                            }{" "}
+                                                            {
+                                                                result
+                                                                    .submitted_by_detail
+                                                                    .last_name
+                                                            }
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="flex flex-col justify-center text-right">
@@ -485,12 +526,12 @@ const ResultPage = () => {
                         </div>
                         <div className="p-6">
                             <div className="space-y-4">
-                                {growthResults
+                                {(growthResults ?? [])
                                     .slice()
                                     .sort(
                                         (a, b) =>
-                                            new Date(a.created_at).getTime() -
-                                            new Date(b.created_at).getTime()
+                                            new Date(a.date).getTime() -
+                                            new Date(b.date).getTime()
                                     )
                                     .slice(0, 3)
                                     .map((result, index) => (
@@ -506,6 +547,12 @@ const ResultPage = () => {
                                                 <div className="text-sm text-gray-500">
                                                     {result.date}
                                                 </div>
+                                                {result.updatedby.trim() && (
+                                                    <div className="text-sm text-gray-500">
+                                                        ประเมินโดยคุณ{" "}
+                                                        {result.updatedby}
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* ค่าต่าง ๆ */}

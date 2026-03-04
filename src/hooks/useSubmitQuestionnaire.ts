@@ -2,22 +2,13 @@ import { useMutation } from "@tanstack/react-query";
 import { postBody } from "../helpers/index";
 import { showSuccess, showError } from "../utils/alert";
 import type { AxiosError } from "axios";
-
+import type{ QuestionnaireSubmitPayload } from "../interface/questionaire.types";
 type DjangoError = {
   detail?: string;
   [key: string]: unknown;
 };
 
-export interface QuestionnaireAnswer {
-  questionnaire_item: number;
-  answer: boolean;
-}
 
-export interface QuestionnaireSubmitPayload {
-  children: number;
-  questionnaire: number;
-  answers: QuestionnaireAnswer[];
-}
 
 export const useSubmitQuestionnaire = (onSuccessCallback?: () => void) => {
   return useMutation({

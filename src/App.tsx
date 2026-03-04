@@ -10,6 +10,7 @@ import DashboardPage from "./pages/DashboardPage";
 import SettingPage from "./pages/SettingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ForbiddenPage from "./pages/ForbiddenPage";
+import ChildrenLookupPage from "./pages/ChildrenLookupPage";
 
 function AppWrapper() {
     const location = useLocation();
@@ -18,7 +19,9 @@ function AppWrapper() {
         location.pathname.includes("/form/") ||
         location.pathname.includes("/measureform/") ||
         location.pathname.includes("/result/") ||
-        location.pathname.includes("/403");
+        location.pathname.includes("/403") ||
+        location.pathname.includes("/lookup") ||
+        location.pathname.includes("/lookup/result");
 
     return (
         <>
@@ -26,6 +29,7 @@ function AppWrapper() {
             <Routes>
                 {/* ✅ public route */}
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/lookup" element={<ChildrenLookupPage />} />
 
                 {/* ✅ protected routes (ต้อง login ก่อนทุกหน้า) */}
                 <Route

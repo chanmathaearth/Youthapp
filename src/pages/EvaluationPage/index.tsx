@@ -7,26 +7,21 @@ import StatCard from "../../components/StatCard";
 import circlecheck from "../../assets/circlecheck.svg";
 import alert from "../../assets/alert.svg";
 import AddChildModal from "../../components/AddChildModal";
-import {
-    useAddStudent,
-    useStudents,
-} from "../../hooks/useStudent";
+import { useAddStudent, useStudents } from "../../hooks/useStudent";
 import type { ChildData } from "../../components/Table";
 import { useParams } from "react-router-dom";
 import { useRoomById } from "../../hooks/useRoom";
 import { Home } from "lucide-react";
-import type { Student } from "../../interface/student";
+import type { Student } from "../../interface/student.types";
 import { dobFormat } from "../../utils/dobFormat";
 import { showError, showSuccessAuto } from "../../utils/alert";
+import { useDashboardRoomOverview } from "../../hooks/useDashboard";
 
 const EvaluationPage = () => {
     const { t } = useTranslation();
-
     const { roomId } = useParams<{ roomId: string }>();
-
     const [openChildDialog, setOpenChildDialog] = useState(false);
     const handleStudentModalClose = () => setOpenChildDialog(false);
-
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const limit = 3;
@@ -39,12 +34,14 @@ const EvaluationPage = () => {
         roomId: Number(roomId),
         page,
         limit,
-        search
+        search,
     });
     const filteredChildren = StudentData?.results ?? [];
     const { mutate: addStudent } = useAddStudent(handleStudentModalClose);
 
+    const { data: HeaderData } = useDashboardRoomOverview();
     const { data: RoomData } = useRoomById(Number(roomId));
+
 
     const childList: ChildData[] = filteredChildren.map((s: Student) => ({
         id: s.id,
@@ -60,8 +57,13 @@ const EvaluationPage = () => {
         roomId: typeof s.room === "number" ? s.room : s.room.id,
     }));
 
-    const successCount = childList.filter((s) => s.status === "success").length;
-    const holdCount = childList.filter((s) => s.status === "hold").length;
+    const rooms = Array.isArray(HeaderData) ? HeaderData : [];
+    const currentRoom = rooms.find(
+        (r: { id: number }) => r.id === Number(roomId)
+    );
+
+    const successCount = currentRoom?.assessed_children_count ?? 0;
+    const pendingCount = currentRoom?.pending_assessment_count ?? 0;
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-r from-blue-50 via-sky-50 to-cyan-50 font-poppins">
@@ -121,7 +123,7 @@ const EvaluationPage = () => {
                         color="#22c55e"
                     />
                     <StatCard
-                        value={holdCount}
+                        value={pendingCount}
                         label="รอประเมิน"
                         icon={alert}
                         color="#f97316"
@@ -143,22 +145,20 @@ const EvaluationPage = () => {
                     )}
                     {!isLoading && !isError && (
                         <>
-                        <Table_
-                        childrenList={childList}
-                        page={page}
-                        limit={limit}
-                        total={StudentData?.count ?? 0}
-                        hasNext={!!StudentData?.next}
-                        hasPrev={!!StudentData
-                            ?.previous}
-                        onPageChange={setPage}
-                        search={search}
-                        onSearchChange={(v) => {
-                            setSearch(v);
-                            setPage(1); // สำคัญ
-                        }}
-                        />
-
+                            <Table_
+                                childrenList={childList}
+                                page={page}
+                                limit={limit}
+                                total={StudentData?.count ?? 0}
+                                hasNext={!!StudentData?.next}
+                                hasPrev={!!StudentData?.previous}
+                                onPageChange={setPage}
+                                search={search}
+                                onSearchChange={(v) => {
+                                    setSearch(v);
+                                    setPage(1); // สำคัญ
+                                }}
+                            />
                         </>
                     )}
                 </div>

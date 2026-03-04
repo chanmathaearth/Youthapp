@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
+import type { QuestionnaireItem } from "../../interface/questionaire.types";
 import { useState } from "react";
 import { ArrowLeft, Save, CheckCircle2, Circle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,16 +7,6 @@ import { Box } from "@mui/material";
 import { useStudentById } from "../../hooks/useStudent";
 import { dobFormat } from "../../utils/dobFormat";
 import { useSubmitQuestionnaire } from "../../hooks/useSubmitQuestionnaire";
-
-type QuestionnaireItem = {
-  id: number;
-  title: string;
-  type?: {
-    name?: string;
-    description?: string;
-  };
-  equipment?: string;
-};
 export default function EvaluationFormPage() {
     const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
     const { childId, roomId } = useParams<{ roomId: string; childId: string }>();

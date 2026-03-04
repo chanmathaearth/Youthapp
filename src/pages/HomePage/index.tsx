@@ -1,12 +1,11 @@
 import ProgramCard from "../../components/ProgramCard";
 import { useTranslation } from "react-i18next";
-import { useRooms } from "../../hooks/useRoom"
-import type { Room } from "../../interface/room";
+import { useRooms } from "../../hooks/useRoom";
+import type { Room } from "../../interface/room.types";
 
 const HomePage = () => {
-
     const { t } = useTranslation();
-    const { data: programs } = useRooms(); 
+    const { data: programs } = useRooms();
 
     return (
         <div className="relative w-full h-screen bg-gradient-to-r from-blue-50 via-sky-50 to-cyan-50 overflow-x-hidden">
@@ -34,9 +33,10 @@ const HomePage = () => {
                                 name={program.name}
                                 teachers={program.teachers}
                                 minAge={program.min_age}
-                                maxAge={program.max_age}         
+                                maxAge={program.max_age}
                                 childrenCount={program.children_count}
-                                image={program.image_url}                                />
+                                image={program.image_url}
+                            />
                         ))}
                     </div>
                 </main>

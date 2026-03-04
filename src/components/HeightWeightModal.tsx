@@ -301,7 +301,6 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
         return "text-gray-500";
     };
 
-    const isMobile = window.innerWidth < 640;
 
 
     return (
@@ -1230,7 +1229,7 @@ const HeightWeightModal: React.FC<GrowthChartProps> = ({
                                         </span>
                                     </div>
                                     <div className="flex items-center space-x-2 border border-stone-300 p-2 rounded-xl">
-                                        <div className="w-4 h-4 bg-red-600 rounded-full border border shadow-sm"></div>
+                                        <div className="w-4 h-4 bg-red-600 rounded-full border shadow-sm"></div>
                                         <span className="font-medium">
                                             ตำแหน่งเด็ก
                                         </span>

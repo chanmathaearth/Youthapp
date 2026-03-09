@@ -6,7 +6,10 @@ import AddChildModal from "../../components/AddChildModal";
 
 //Component
 import Select from "react-select";
-import { Box, Container, Tabs, Tab, IconButton } from "@mui/material";
+import { Box, Container, Tabs, Tab, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from "@mui/material";
+import { postBody } from "../../helpers/index";
+import { showSuccess, showError } from "../../utils/alert";
+
 
 //svg
 import {
@@ -26,7 +29,9 @@ import {
     X,
     Baby,
     ChevronDown,
+    Key,
 } from "lucide-react";
+
 
 //date
 import {
@@ -59,6 +64,7 @@ import {
     useAddStudent,
     useDeleteStudent,
     useUpdateStudent,
+    useGenerateOtp,
 } from "../../hooks/useStudent";
 
 //utils
@@ -179,6 +185,10 @@ const SettingsPage = () => {
     const [openUserDialog, setOpenUserDialog] = useState<boolean>(false);
     const [openChildDialog, setOpenChildDialog] = useState<boolean>(false);
     const [addRoomModal, setAddRoomModal] = useState<boolean>(false);
+    const [otpDialogOpen, setOtpDialogOpen] = useState(false);
+    const [otpMessage, setOtpMessage] = useState("");
+    const [isGeneratingOtp, setIsGeneratingOtp] = useState<number | null>(null);
+
 
     const [newRoom, setNewRoom] = useState<NewRoomInput>({
         name: "",
@@ -228,6 +238,23 @@ const SettingsPage = () => {
     };
     const closeUpdateUser = () => {
         setUpdateUserOpen(false);
+    };
+
+    const { mutate: generateOtp } = useGenerateOtp();
+
+    const handleGenerateOtp = (childId: number) => {
+        setIsGeneratingOtp(childId);
+        generateOtp(childId, {
+            onSuccess: (data) => {
+                if (data.status === "success") {
+                    setOtpMessage(data.message);
+                    setOtpDialogOpen(true);
+                }
+            },
+            onSettled: () => {
+                setIsGeneratingOtp(null);
+            },
+        });
     };
 
     //เชื่อมกับหลังบ้าน
@@ -2239,6 +2266,46 @@ const SettingsPage = () => {
 
                                                     <button
                                                         onClick={() =>
+                                                            handleGenerateOtp(
+                                                                student.child_id
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            isGeneratingOtp ===
+                                                            student.child_id
+                                                        }
+                                                        className="w-full sm:w-auto px-3 py-2 border-2 border-orange-500 text-orange-500 rounded-[10px] hover:bg-orange-50 flex items-center justify-center disabled:opacity-50"
+                                                        title="สร้างรหัส OTP สำหรับ LINE"
+                                                    >
+                                                        {isGeneratingOtp ===
+                                                        student.child_id ? (
+                                                            <svg
+                                                                className="animate-spin h-4 w-4 text-orange-500"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <circle
+                                                                    className="opacity-25"
+                                                                    cx="12"
+                                                                    cy="12"
+                                                                    r="10"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth="4"
+                                                                ></circle>
+                                                                <path
+                                                                    className="opacity-75"
+                                                                    fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                                                ></path>
+                                                            </svg>
+                                                        ) : (
+                                                            <Key size={16} />
+                                                        )}
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() =>
                                                             handleDeleteStudent(
                                                                 student.id
                                                             )
@@ -2303,6 +2370,72 @@ const SettingsPage = () => {
                     )}
                 </Box>
             </Container>
+
+            {/* OTP Result Dialog */}
+            <Dialog
+                open={otpDialogOpen}
+                onClose={() => setOtpDialogOpen(false)}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle className="flex justify-between items-center">
+                    สร้างรหัสลงทะเบียนสำเร็จ
+                    <IconButton onClick={() => setOtpDialogOpen(false)}>
+                        <X size={20} />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <Box
+                        sx={{
+                            mt: 2,
+                            p: 2,
+                            bgcolor: "#f8fafc",
+                            borderRadius: "12px",
+                            border: "1px solid #e2e8f0",
+                        }}
+                    >
+                        <pre
+                            style={{
+                                whiteSpace: "pre-wrap",
+                                fontFamily: "inherit",
+                                fontSize: "1rem",
+                                color: "#334155",
+                                lineHeight: "1.6",
+                            }}
+                        >
+                            {otpMessage}
+                        </pre>
+                    </Box>
+                    <DialogContentText
+                        sx={{ mt: 2, fontSize: "0.875rem", color: "#64748b" }}
+                    >
+                        กรุณาใช้รหัสนี้สำหรับการลงทะเบียนใน LINE ตามคำแนะนำด้านบน
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ p: 2.5 }}>
+                    <Button
+                        onClick={() => {
+                            navigator.clipboard.writeText(otpMessage);
+                            showSuccess(
+                                "คัดลอกสำเร็จ",
+                                "คัดลอกข้อความลงในคลิปบอร์ดแล้ว"
+                            );
+                        }}
+                        variant="outlined"
+                        color="primary"
+                    >
+                        คัดลอกข้อความ
+                    </Button>
+                    <Button
+                        onClick={() => setOtpDialogOpen(false)}
+                        variant="contained"
+                        color="primary"
+                        sx={{ borderRadius: "10px", px: 3 }}
+                    >
+                        ตกลง
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

@@ -2,6 +2,7 @@ import type { Room } from "./room.types";
 
 export interface Student {
   id: number;
+  child_id: number;
   first_name: string;
   last_name: string;
   current_evaluation_status: string;

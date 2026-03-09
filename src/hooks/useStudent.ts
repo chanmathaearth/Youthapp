@@ -164,3 +164,22 @@ export const useDeleteStudent = () => {
         },
     });
 };
+
+export const useGenerateOtp = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (childId: number) =>
+            postBody("line-bot/api/v1/generate-otp", { child_id: childId }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["children"] });
+            showSuccess("สำเร็จ", "สร้าง OTP เรียบร้อยแล้ว");
+        },
+        onError: (err: AxiosError<DjangoError>) => {
+            const data = err.response?.data;
+            const message = data?.detail || "ไม่สามารถสร้าง OTP ได้";
+            showError("ผิดพลาด", message);
+        },
+    });
+};
+

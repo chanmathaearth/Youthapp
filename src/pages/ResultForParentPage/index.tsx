@@ -4,10 +4,10 @@ import HeightWeightModal from "../../components/HeightWeightModal";
 import GrowthHistoryModal from "../../components/GrowthHistoryModal";
 import PotentialHistoryModal from "../../components/PotentialHistoryModal";
 import { useState } from "react";
-import { useStudentById } from "../../hooks/useStudent";
+import { useStudentById, useStudentByLineId } from "../../hooks/useStudent";
 import { dobFormat } from "../../utils/dobFormat";
-import { useSubmissionsByChild } from "../../hooks/useSubmission";
-import { useHealthRecordsByChild } from "../../hooks/useHeath";
+import { useSubmissionsByChild, useSubmissionsByLineId } from "../../hooks/useSubmission";
+import { useHealthRecordsByChild, useHealthRecordsByLineId } from "../../hooks/useHeath";
 import { evaluateGrowth } from "../../utils/evaluateGrowth";
 import { calculateAgeInMonths } from "../../utils/ageCalculated";
 import Potential from "../../components/Potential";
@@ -44,9 +44,11 @@ const getStatusBadge = (status: "ผ่าน" | "ไม่ผ่าน") => {
 const ResultForParentPage = ({
     childId,
     onBack,
+    lineUserId,
 }: {
     childId: number;
     onBack: () => void;
+    lineUserId?: string | null;
 }) => {
     const [tab, setTab] = useState<Tab>("overview");
 
@@ -71,10 +73,18 @@ const ResultForParentPage = ({
         setOpenPotentialModal(false);
     };
 
-    const { data: childInfo } = useStudentById(Number(childId));
-    const { data: healthRecords } = useHealthRecordsByChild(Number(childId));
-    const { data: submissions = [] } = useSubmissionsByChild(Number(childId));
-    const latest = submissions?.at(0);
+    const { data: childInfoFromJWT } = useStudentById(lineUserId ? undefined : Number(childId));
+    const { data: childInfoFromLine } = useStudentByLineId(lineUserId || null, Number(childId));
+    const childInfo = lineUserId ? childInfoFromLine : childInfoFromJWT;
+
+    const { data: healthRecordsFromJWT } = useHealthRecordsByChild(lineUserId ? undefined : Number(childId));
+    const { data: healthRecordsFromLine } = useHealthRecordsByLineId(lineUserId || null, Number(childId));
+    const healthRecords = lineUserId ? healthRecordsFromLine : healthRecordsFromJWT;
+
+    const { data: submissionsFromJWT = [] } = useSubmissionsByChild(lineUserId ? undefined : Number(childId));
+    const { data: submissionsFromLine = [] } = useSubmissionsByLineId(lineUserId || null, Number(childId));
+    const submissions = lineUserId ? submissionsFromLine : (submissionsFromJWT || []);
+    const latest = submissions?.[0];
     const latestHealthRecord = Array.isArray(healthRecords)
         ? [...healthRecords]
               .filter(
@@ -108,7 +118,7 @@ const ResultForParentPage = ({
               }
             : null;
 
-    const growthResults = healthRecords?.map((record) => ({
+    const growthResults = Array.isArray(healthRecords) ? healthRecords.map((record) => ({
         round: record.round,
         date: new Date(record.created_at ?? "").toLocaleDateString("th-TH"),
         weight: record.weight_kg,
@@ -124,15 +134,15 @@ const ResultForParentPage = ({
             weight: record.weight_kg ?? 0,
             height: record.height_cm ?? 0,
         }),
-    }));
+    })) : [];
 
     const heightChartData =
-  growthResults?.map((item) => ({
+  Array.isArray(growthResults) ? growthResults.map((item) => ({
     round: `ครั้งที่ ${item.round}`,
     height: item.height,
     date: item.date,
     weight: item.weight
-  })) ?? [];
+  })) : [];
 
 
     const isBoy = childInfo?.gender === "male";
@@ -397,36 +407,40 @@ const ResultForParentPage = ({
                                         {/* สถานะผ่าน / ไม่ผ่าน */}
                                         <div className="text-center">
                                             <div
-                                                className={`text-3xl ${getScoreColor(
+                                                className={`text-3xl ${latest?.status_display === 'ไม่ผ่าน' ? 'text-gray-500' : getScoreColor(
                                                     latest?.status_display,
                                                 )} mb-2`}
                                             >
-                                                {latest?.status_display ?? "-"}
+                                                {latest?.status_display === "ไม่ผ่าน" ? "รอการประเมิน" : (latest?.status_display ?? "-")}
                                             </div>
                                         </div>
 
                                         {/* คะแนน */}
-                                        <div className="text-center text-sm text-gray-600">
-                                            ทำได้ {latest?.passed_items ?? 0}/
-                                            {latest?.total_items ?? 0} ข้อ
-                                        </div>
+                                        {latest?.status_display !== "ไม่ผ่าน" && (
+                                            <>
+                                                <div className="text-center text-sm text-gray-600">
+                                                    ทำได้ {latest?.passed_items ?? 0}/
+                                                    {latest?.total_items ?? 0} ข้อ
+                                                </div>
 
-                                        {/* Progress bar */}
-                                        <LinearProgress
-                                            variant="determinate"
-                                            value={
-                                                latest?.total_items &&
-                                                latest?.passed_items !==
-                                                    undefined
-                                                    ? ((latest.passed_items ??
-                                                          0) /
-                                                          (latest.total_items ??
-                                                              1)) *
-                                                      100
-                                                    : 0
-                                            }
-                                            className="rounded h-2"
-                                        />
+                                                {/* Progress bar */}
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={
+                                                        latest?.total_items &&
+                                                        latest?.passed_items !==
+                                                            undefined
+                                                            ? ((latest.passed_items ??
+                                                                  0) /
+                                                                  (latest.total_items ??
+                                                                      1)) *
+                                                              100
+                                                            : 0
+                                                    }
+                                                    className="rounded h-2"
+                                                />
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -739,6 +753,7 @@ const ResultForParentPage = ({
                                         summary={latest?.summary_by_type ?? []}
                                         date={latest?.created_at ?? ""}
                                         onClose={handlePMClose}
+                                        overallStatus={latest?.status_display}
                                     />
                                 )}
                             </div>
@@ -812,28 +827,36 @@ const ResultForParentPage = ({
                                                         </div>
 
                                                         <div className="flex flex-col justify-center text-right">
-                                                            <div
-                                                                className={`text-sm font-bold ${getScoreColor(
-                                                                    result.status_display,
-                                                                )}`}
-                                                            >
-                                                                ทำได้{" "}
-                                                                {
-                                                                    result.passed_items
-                                                                }
-                                                                /
-                                                                {
-                                                                    result.total_items
-                                                                }{" "}
-                                                                ข้อ
-                                                            </div>
-                                                            <div className="text-xs mx-auto">
-                                                                {getStatusBadge(
-                                                                    result.status_display as
-                                                                        | "ผ่าน"
-                                                                        | "ไม่ผ่าน",
-                                                                )}
-                                                            </div>
+                                                            {result.status_display === "ไม่ผ่าน" ? (
+                                                                <div className="text-gray-500 font-bold text-sm">
+                                                                    รอการประเมิน
+                                                                </div>
+                                                            ) : (
+                                                                <>
+                                                                    <div
+                                                                        className={`text-sm font-bold ${getScoreColor(
+                                                                            result.status_display,
+                                                                        )}`}
+                                                                    >
+                                                                        ทำได้{" "}
+                                                                        {
+                                                                            result.passed_items
+                                                                        }
+                                                                        /
+                                                                        {
+                                                                            result.total_items
+                                                                        }{" "}
+                                                                        ข้อ
+                                                                    </div>
+                                                                    <div className="text-xs mx-auto">
+                                                                        {getStatusBadge(
+                                                                            result.status_display as
+                                                                                | "ผ่าน"
+                                                                                | "ไม่ผ่าน",
+                                                                        )}
+                                                                    </div>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 );

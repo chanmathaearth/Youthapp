@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAll, getById } from "../helpers";
+import { getAll, getById, postBody } from "../helpers";
+
 import type { AxiosError } from "axios";
 import { showError } from "../utils/alert";
 import type { Submission } from "../interface/submission.types";
@@ -77,3 +78,15 @@ export const useSubmissionDetail = (id?: number) => {
 
   return query;
 };
+
+export const useSubmissionsByLineId = (lineUserId: string | null, childId?: number) => {
+    return useQuery<Submission[]>({
+        queryKey: ["submissions-line", lineUserId, childId],
+        queryFn: async () => {
+            const res = await postBody("line-bot/api/v1/get-submissions", { line_user_id: lineUserId, child_id: childId });
+            return res.status === "success" ? res.data : [];
+        },
+        enabled: !!lineUserId && !!childId,
+    });
+};
+

@@ -28,11 +28,12 @@ interface PotentialModalProps {
     onClose: () => void;
     summary: SummaryItem[];
     gender: "male" | "female";
+    overallStatus?: string;
 }
 
 const colors = ["#06b6d4", "#3b82f6", "#ec4899", "#f97316", "#84cc16"];
 
-const PotentialModal: React.FC<PotentialModalProps> = ({ summary, date }) => {
+const PotentialModal: React.FC<PotentialModalProps> = ({ summary, date, overallStatus }) => {
     const chartData =
         summary?.map((item) => ({
             name: item.type_name.match(/\((.*?)\)/)?.[1] ?? item.type_name,
@@ -62,89 +63,97 @@ const PotentialModal: React.FC<PotentialModalProps> = ({ summary, date }) => {
                 </Box>
 
                 <span className="text-sm">
-                    {new Date(date).toLocaleDateString("th-TH")}
+                    {date ? new Date(date).toLocaleDateString("th-TH") : "-"}
                 </span>
             </Box>
 
-            <div
-                className={`mb-4 rounded-xl p-4 text-center ${allPassed ? "bg-emerald-50" : "bg-amber-50"}`}
-            >
-                <p
-                    className={`text-3xl font-bold ${allPassed ? "text-emerald-600" : "text-amber-600"}`}
-                >
-                    {passCount}/{chartData.length}
-                </p>
-                <p
-                    className={`mt-1 text-sm font-medium ${allPassed ? "text-emerald-700" : "text-amber-700"}`}
-                >
-                    {allPassed ? "ผ่านครบทุกด้าน" : "ต้องติดตามเพิ่มเติม"}
-                </p>
-            </div>
-            {/* 🔥 Horizontal modern bar */}
-            <Box sx={{ width: "100%", height: 360 }}>
-                <ResponsiveContainer>
-                    <BarChart layout="vertical" data={chartData}>
-                        <CartesianGrid
-                            strokeDasharray="4 4"
-                            horizontal={false}
-                        />
-
-                        {/* ผ่าน / ไม่ผ่าน */}
-                        <XAxis
-                            type="number"
-                            domain={[0, 1]}
-                            ticks={[0, 1]}
-                            tickFormatter={(v) =>
-                                v === 1 ? "ผ่าน" : "ไม่ผ่าน"
-                            }
-                            axisLine={false}
-                            tickLine={false}
-                        />
-
-                        {/* 🔥 nowrap label */}
-                        <YAxis
-                            type="category"
-                            dataKey="name"
-                            width={40}
-                            axisLine={false}
-                            tickLine={false}
-                            tick={({ x, y, payload }) => (
-                                <text
-                                    x={x - 12}
-                                    y={y}
-                                    dy={4}
-                                    textAnchor="end"
-                                    className="whitespace-nowrap"
-                                    style={{
-                                        fontSize: 14,
-                                        fontWeight: 500,
-                                    }}
-                                >
-                                    {payload.value}
-                                </text>
-                            )}
-                        />
-
-                        <Tooltip
-                            labelFormatter={(label, payload) =>
-                                payload?.[0]?.payload?.fullName ?? label
-                            }
-                            formatter={(value: number) =>
-                                value === 1 ? "ผ่าน" : "ไม่ผ่าน"
-                            }
-                        />
-
-                        <Bar dataKey="value" radius={[30, 30, 30, 30]}>
-                            {chartData.map((_, index) => (
-                                <Cell
-                                    key={index}
-                                    fill={colors[index % colors.length]}
+            {overallStatus === "ไม่ผ่าน" ? (
+                <div className="mb-4 rounded-xl p-8 text-center bg-gray-50 border border-gray-200">
+                    <p className="text-2xl font-bold text-gray-500">
+                        รอการประเมิน
+                    </p>
+                </div>
+            ) : (
+                <>
+                    <div
+                        className={`mb-4 rounded-xl p-4 text-center ${allPassed ? "bg-emerald-50" : "bg-amber-50"}`}
+                    >
+                        <p
+                            className={`text-3xl font-bold ${allPassed ? "text-emerald-600" : "text-amber-600"}`}
+                        >
+                            {passCount}/{chartData.length}
+                        </p>
+                        <p
+                            className={`mt-1 text-sm font-medium ${allPassed ? "text-emerald-700" : "text-amber-700"}`}
+                        >
+                            {allPassed ? "ผ่านครบทุกด้าน" : "ต้องติดตามเพิ่มเติม"}
+                        </p>
+                    </div>
+                    
+                    <Box sx={{ width: "100%", height: 360 }}>
+                        <ResponsiveContainer>
+                            <BarChart layout="vertical" data={chartData}>
+                                <CartesianGrid
+                                    strokeDasharray="4 4"
+                                    horizontal={false}
                                 />
-                            ))}
-                        </Bar>
-                    </BarChart>
-                </ResponsiveContainer>
-            </Box>
+
+                                <XAxis
+                                    type="number"
+                                    domain={[0, 1]}
+                                    ticks={[0, 1]}
+                                    tickFormatter={(v) =>
+                                        v === 1 ? "ผ่าน" : "ไม่ผ่าน"
+                                    }
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+
+                                <YAxis
+                                    type="category"
+                                    dataKey="name"
+                                    width={40}
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={({ x, y, payload }) => (
+                                        <text
+                                            x={x - 12}
+                                            y={y}
+                                            dy={4}
+                                            textAnchor="end"
+                                            className="whitespace-nowrap"
+                                            style={{
+                                                fontSize: 14,
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            {payload.value}
+                                        </text>
+                                    )}
+                                />
+
+                                <Tooltip
+                                    labelFormatter={(label, payload) =>
+                                        payload?.[0]?.payload?.fullName ?? label
+                                    }
+                                    formatter={(value: number) =>
+                                        value === 1 ? "ผ่าน" : "ไม่ผ่าน"
+                                    }
+                                />
+
+                                <Bar dataKey="value" radius={[30, 30, 30, 30]}>
+                                    {chartData.map((_, index) => (
+                                        <Cell
+                                            key={index}
+                                            fill={colors[index % colors.length]}
+                                        />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Box>
+                </>
+            )}
         </Box>
     );
 };

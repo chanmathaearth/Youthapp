@@ -183,3 +183,14 @@ export const useGenerateOtp = () => {
     });
 };
 
+
+export const useStudentByLineId = (lineUserId: string | null, childId?: number) => {
+    return useQuery<Student>({
+        queryKey: ["student-line", lineUserId, childId],
+        queryFn: async () => {
+            const res = await postBody("line-bot/api/v1/get-child-info", { line_user_id: lineUserId, child_id: childId });
+            return res.status === "success" ? res.data : null;
+        },
+        enabled: !!lineUserId && !!childId,
+    });
+};

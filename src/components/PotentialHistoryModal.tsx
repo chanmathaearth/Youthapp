@@ -4,6 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import PotentialModal from "./PotentialModal";
 import type { Submission } from "../interface/submission.types";
 import type { Student } from "../interface/student.types";
+import { getRole } from "../utils/authen";
 
 interface Props {
     onClose: () => void;
@@ -17,6 +18,7 @@ const DevelopmentLogModal: React.FC<Props> = ({ onClose, submissions, childInfo 
     const handlePMClose = () => {
         setOpenPotentialModal(false);
     };
+    const role = getRole();
     const calculateAgeAtDate = (birth: string, recordDate: string) => {
         const birthDate = new Date(birth);
         const targetDate = new Date(recordDate);
@@ -188,7 +190,7 @@ const DevelopmentLogModal: React.FC<Props> = ({ onClose, submissions, childInfo 
                                     alignItems="center"
                                     gap={1}
                                 >
-                                    {label === "ไม่ผ่าน" ? (
+                                    {label === "ไม่ผ่าน" && role != "admin" && role != "teacher"? (
                                         <Typography
                                             fontSize={15}
                                             color="#6b7280"

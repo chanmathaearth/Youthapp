@@ -126,3 +126,14 @@ export const useUpdateHealthRecord = () => {
 
   return useMutation(options);
 };
+
+export const useHealthRecordsByLineId = (lineUserId: string | null, childId?: number) => {
+    return useQuery<HealthRecord[]>({
+        queryKey: ["health-records-line", lineUserId, childId],
+        queryFn: async () => {
+            const res = await postBody("line-bot/api/v1/get-health-records", { line_user_id: lineUserId, child_id: childId });
+            return res.status === "success" ? res.data : [];
+        },
+        enabled: !!lineUserId && !!childId,
+    });
+};

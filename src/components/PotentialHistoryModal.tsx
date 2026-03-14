@@ -75,6 +75,7 @@ const DevelopmentLogModal: React.FC<Props> = ({ onClose, submissions, childInfo 
     gender={(childInfo?.gender as "male" | "female") ?? "male"}
     summary={selectedSubmission.summary_by_type ?? []}
     onClose={handlePMClose}
+    overallStatus={selectedSubmission.status_display}
   />
 )}
 
@@ -187,31 +188,43 @@ const DevelopmentLogModal: React.FC<Props> = ({ onClose, submissions, childInfo 
                                     alignItems="center"
                                     gap={1}
                                 >
-
-                                    <Typography
-                                        fontSize={15}
-                                        color={bg}
-                                        sx={{ fontFamily: "Kanit, Poppins" }}
-                                    >
-                                        ทำได้ {passed}/{total} ข้อ
-                                    </Typography>
-                                    <Chip
-                                        label={label}
-                                        sx={{
-                                            bgcolor: bg,
-                                            color: "white",
-                                            fontWeight: "bold",
-                                            fontSize: "0.8rem",
-                                            fontFamily: "Kanit, Poppins",
-                                            width: "5rem"
-                                        }}
-                                    />
-                                                                                                                                          <button
-                                    onClick={() => handlePMOpen(item)}
-                                    className="px-4 py-1 bg-blue-500 text-md text-white rounded-2xl"
-                                >
-                                    ดูกราฟ
-                                </button>
+                                    {label === "ไม่ผ่าน" ? (
+                                        <Typography
+                                            fontSize={15}
+                                            color="#6b7280"
+                                            fontWeight="bold"
+                                            sx={{ fontFamily: "Kanit, Poppins" }}
+                                        >
+                                            รอการประเมิน
+                                        </Typography>
+                                    ) : (
+                                        <>
+                                            <Typography
+                                                fontSize={15}
+                                                color={bg}
+                                                sx={{ fontFamily: "Kanit, Poppins" }}
+                                            >
+                                                ทำได้ {passed}/{total} ข้อ
+                                            </Typography>
+                                            <Chip
+                                                label={label}
+                                                sx={{
+                                                    bgcolor: bg,
+                                                    color: "white",
+                                                    fontWeight: "bold",
+                                                    fontSize: "0.8rem",
+                                                    fontFamily: "Kanit, Poppins",
+                                                    width: "5rem"
+                                                }}
+                                            />
+                                            <button
+                                                onClick={() => handlePMOpen(item)}
+                                                className="px-4 py-1 bg-blue-500 text-md text-white rounded-2xl"
+                                            >
+                                                ดูกราฟ
+                                            </button>
+                                        </>
+                                    )}
                                 </Box>
                             </Box>
                         );

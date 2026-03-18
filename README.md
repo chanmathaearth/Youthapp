@@ -34,10 +34,10 @@
 3. เปิดเว็บเบราว์เซอร์ และไปที่ `http://localhost:5173`
 
 ## ✅ คำสั่งสำคัญ
-- `npm run dev` – รันโหมดพัฒนา
-- `npm run build` – สร้างไฟล์สำหรับ production
-- `npm run preview` – ทดสอบ build ที่สร้างขึ้น
-- `npm run lint` – ตรวจสอบโค้ดตามมาตรฐาน ESLint
+- `yarn dev` – รันโหมดพัฒนา
+- `yarn build` – สร้างไฟล์สำหรับ production
+- `yarn preview` – ทดสอบ build ที่สร้างขึ้น
+- `yarn lint` – ตรวจสอบโค้ดตามมาตรฐาน ESLint
 
 ## 🧩 โครงสร้างโปรเจกต์ (ย่อ)
 - `src/` – โค้ดหลักของแอป

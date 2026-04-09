@@ -194,3 +194,14 @@ export const useStudentByLineId = (lineUserId: string | null, childId?: number) 
         enabled: !!lineUserId && !!childId,
     });
 };
+
+export const useMyChildrenByLineId = (lineUserId: string | null) => {
+    return useQuery<Student[]>({
+        queryKey: ["my-children", lineUserId],
+        queryFn: async () => {
+            const res = await postBody("line-bot/api/v1/get-my-children", { line_user_id: lineUserId });
+            return res || [];
+        },
+        enabled: !!lineUserId,
+    });
+};
